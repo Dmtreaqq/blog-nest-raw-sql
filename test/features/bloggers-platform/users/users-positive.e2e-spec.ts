@@ -148,6 +148,7 @@ describe('Users Positive (e2e)', () => {
       .get(`${API_PREFIX}${API_PATH.USERS}/?sortBy=login`)
       .set('authorization', basicAuthHeader)
       .expect(HttpStatus.OK);
+    console.log(response1.body);
     expect(response1.body.items[0].login).toEqual('test3');
     expect(response1.body.items[3].login).toEqual('test0');
   });

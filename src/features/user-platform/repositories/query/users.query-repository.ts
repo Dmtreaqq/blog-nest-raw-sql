@@ -51,23 +51,62 @@ export class UsersQueryRepository {
       OR email ILIKE $2
       ORDER BY "${sortBy}" ${sortDirection}
       LIMIT ${pageSize}
-      OFFSET ${query.calculateSkip()};
+      OFFSET ${query.calculateSkip()}
     `;
 
-    const users = await this.dataSource.query(sqlQuery, [
-      `%${searchLoginTerm ? searchLoginTerm : ''}%`,
-      `%${searchEmailTerm ? searchEmailTerm : ''}%`,
-    ]);
+    let params = [
+      `%${searchLoginTerm ? searchLoginTerm : '\x99'}%`,
+      `%${searchEmailTerm ? searchEmailTerm : '\x99'}%`,
+    ];
 
-    // const totalCount = await this.dataSource.query(
-    //   `SELECT COUNT(*) FROM users;`,
-    // );
+    if (!searchLoginTerm && !searchEmailTerm) {
+      params = params.map((item) => item.replace('\x99', ''));
+    }
+
+    const users = await this.dataSource.query(`${sqlQuery};`, params);
+
+    let totalCount;
+
+    if (!searchEmailTerm && !searchLoginTerm) {
+      totalCount = await this.dataSource.query(`
+      SELECT COUNT(*) FROM users;
+      `);
+    } else if (searchEmailTerm && !searchLoginTerm) {
+      totalCount = await this.dataSource.query(
+        `SELECT COUNT(*) FROM (
+            SELECT id
+            FROM users
+            WHERE email ILIKE $1
+         ) AS subquery;`,
+        [params[1]],
+      );
+    } else if (!searchEmailTerm && searchLoginTerm) {
+      totalCount = await this.dataSource.query(
+        `SELECT COUNT(*) FROM (
+            SELECT id
+            FROM users
+            WHERE login ILIKE $1
+         ) AS subquery;`,
+        [params[0]],
+      );
+    } else {
+      totalCount = await this.dataSource.query(
+        `
+      SELECT COUNT(*) FROM (
+        SELECT id
+        FROM users
+        WHERE login ILIKE $1
+        AND email ILIKE $2) as subquery;
+      `,
+        params,
+      );
+    }
 
     const items: UserViewDto[] = users.map(UserViewDto.mapToView);
 
     return BasePaginationViewDto.mapToView({
       items,
-      totalCount: users.length,
+      totalCount: totalCount.length === 0 ? 0 : Number(totalCount[0].count),
       page: query.pageNumber,
       pageSize: query.pageSize,
     });
