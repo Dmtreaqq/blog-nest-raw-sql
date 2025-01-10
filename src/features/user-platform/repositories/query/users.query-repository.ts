@@ -96,7 +96,7 @@ export class UsersQueryRepository {
         SELECT id
         FROM users
         WHERE login ILIKE $1
-        AND email ILIKE $2) as subquery;
+        OR email ILIKE $2) as subquery;
       `,
         params,
       );
