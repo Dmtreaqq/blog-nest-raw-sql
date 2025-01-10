@@ -48,6 +48,11 @@ export class CommonConfig {
   @IsString({ message: 'DB_NAME should be a string' })
   dbName: string = this.configService.get('DB_NAME');
 
+  @IsBoolean({ message: 'IS_DB_SSL should be boolean' })
+  isDbSsl: boolean = configUtilityHelper.convertToBoolean(
+    this.configService.get('IS_DB_SSL'),
+  );
+
   @IsEnum(Environments, {
     message:
       'Ser correct NODE_ENV value, available values: ' +
