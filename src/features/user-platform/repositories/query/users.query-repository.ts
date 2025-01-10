@@ -59,15 +59,15 @@ export class UsersQueryRepository {
       `%${searchEmailTerm ? searchEmailTerm : ''}%`,
     ]);
 
-    // const totalCount = await this.dataSource.query(
-    //   `SELECT COUNT(*) FROM users;`,
-    // );
+    const totalCount = await this.dataSource.query(
+      `SELECT COUNT(*) FROM users;`,
+    );
 
     const items: UserViewDto[] = users.map(UserViewDto.mapToView);
 
     return BasePaginationViewDto.mapToView({
       items,
-      totalCount: users.length,
+      totalCount: totalCount.length === 0 ? 0 : Number(totalCount[0].count),
       page: query.pageNumber,
       pageSize: query.pageSize,
     });
