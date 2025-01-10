@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from '../domain/user.entity';
 import { UsersRepository } from '../repositories/users.repository';
 import { CryptoService } from './crypto.service';
 import { CreateUserInputDto } from '../api/input-dto/create-user.input-dto';

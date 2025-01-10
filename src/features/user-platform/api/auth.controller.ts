@@ -48,11 +48,11 @@ export class AuthController {
       ip,
       userAgent,
     );
-    res.cookie('refreshToken', loginResult.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      expires: add(new Date(), { hours: 24 }),
-    });
+    // res.cookie('refreshToken', loginResult.refreshToken, {
+    //   httpOnly: true,
+    //   secure: true,
+    //   expires: add(new Date(), { hours: 24 }),
+    // });
 
     return {
       accessToken: loginResult.accessToken,
@@ -71,47 +71,47 @@ export class AuthController {
     await this.authService.confirmRegistration(dto);
   }
 
-  @UseGuards(JwtRefreshAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Post('logout')
-  async logout(
-    @GetUser() userContext: { deviceId: string; id: string; iat: number },
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    await this.authService.logout(
-      userContext.deviceId,
-      userContext.id,
-      userContext.iat,
-    );
+  // @UseGuards(JwtRefreshAuthGuard)
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // @Post('logout')
+  // async logout(
+  //   @GetUser() userContext: { deviceId: string; id: string; iat: number },
+  //   @Res({ passthrough: true }) res: Response,
+  // ) {
+  //   await this.authService.logout(
+  //     userContext.deviceId,
+  //     userContext.id,
+  //     userContext.iat,
+  //   );
+  //
+  //   res.clearCookie('refreshToken', {
+  //     httpOnly: true,
+  //     secure: true,
+  //     expires: add(new Date(), { hours: 24 }),
+  //   });
+  // }
 
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      secure: true,
-      expires: add(new Date(), { hours: 24 }),
-    });
-  }
-
-  @UseGuards(JwtRefreshAuthGuard)
-  @HttpCode(HttpStatus.OK)
-  @Post('refresh-token')
-  async refreshToken(
-    @GetUser() userContext: { id: string; deviceId: string; iat: number },
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const tokens = await this.authService.refreshTokensPair(
-      userContext.deviceId,
-      userContext.id,
-      userContext.iat,
-    );
-
-    res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      expires: add(new Date(), { hours: 24 }),
-    });
-
-    return tokens;
-  }
+  // @UseGuards(JwtRefreshAuthGuard)
+  // @HttpCode(HttpStatus.OK)
+  // @Post('refresh-token')
+  // async refreshToken(
+  //   @GetUser() userContext: { id: string; deviceId: string; iat: number },
+  //   @Res({ passthrough: true }) res: Response,
+  // ) {
+  //   const tokens = await this.authService.refreshTokensPair(
+  //     userContext.deviceId,
+  //     userContext.id,
+  //     userContext.iat,
+  //   );
+  //
+  //   res.cookie('refreshToken', tokens.refreshToken, {
+  //     httpOnly: true,
+  //     secure: true,
+  //     expires: add(new Date(), { hours: 24 }),
+  //   });
+  //
+  //   return tokens;
+  // }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-email-resending')
@@ -134,9 +134,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMe(@GetUser() userContext: UserContext): Promise<MeViewDto> {
-    // const user = await this.usersQueryRepository.getByIdOrThrow(userContext.id);
+    const user = await this.usersQueryRepository.getByIdOrThrow(userContext.id);
 
-    console.log('me');
-    return {} as any; // return MeViewDto.mapToView(user as UserDocument);
+    return MeViewDto.mapToView(user as any);
   }
 }

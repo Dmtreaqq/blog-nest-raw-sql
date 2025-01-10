@@ -179,10 +179,14 @@ describe('Auth Negative (e2e)', () => {
   it('should return 400 when POST registration confirmation when code is expired', async () => {
     await usersTestManager.registerUser(createUserInput);
     const user = await usersRepository.findByEmail(createUserInput.email);
-    user.confirmationCodeExpirationDate = sub(new Date(), {
+    const confirmDate = sub(new Date(), {
       minutes: 4,
     }).toISOString();
-    await usersRepository.save(user);
+    await usersRepository.updateConfirmationCode(
+      user.id,
+      user.confirmationCode,
+      confirmDate,
+    );
 
     const response = await request(app.getHttpServer())
       .post(API_PREFIX + API_PATH.AUTH + '/registration-confirmation')

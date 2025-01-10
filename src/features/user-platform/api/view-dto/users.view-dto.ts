@@ -1,12 +1,13 @@
 import { OmitType } from '@nestjs/swagger';
+import { User } from '../../domain/user.entity';
 
 export class UserViewDto {
-  id: number;
+  id: string;
   login: string;
   email: string;
   createdAt: Date;
 
-  static mapToView(user: any): UserViewDto {
+  static mapToView(user: User): UserViewDto {
     const dto = new UserViewDto();
 
     dto.id = user.id;
