@@ -22,6 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           database: commonConfig.dbName,
           autoLoadEntities: false,
           synchronize: false,
+          ssl: true,
         };
       },
       inject: [CommonConfig],
