@@ -48,7 +48,7 @@ export class UsersQueryRepository {
       SELECT id, login, email, created_at as "createdAt"
       FROM users
       WHERE login ILIKE $1
-      AND email ILIKE $2
+      OR email ILIKE $2
       ORDER BY "${sortBy}" ${sortDirection}
       LIMIT ${pageSize}
       OFFSET ${query.calculateSkip()};
