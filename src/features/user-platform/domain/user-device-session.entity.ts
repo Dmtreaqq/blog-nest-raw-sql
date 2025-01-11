@@ -1,6 +1,8 @@
 import { CreateDeviceSessionDto } from '../dto/create-device-session.dto';
 
 export class UserDeviceSession {
+  id: string;
+
   userId: string;
 
   deviceId: string;

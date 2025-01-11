@@ -48,11 +48,11 @@ export class AuthController {
       ip,
       userAgent,
     );
-    // res.cookie('refreshToken', loginResult.refreshToken, {
-    //   httpOnly: true,
-    //   secure: true,
-    //   expires: add(new Date(), { hours: 24 }),
-    // });
+    res.cookie('refreshToken', loginResult.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: add(new Date(), { hours: 24 }),
+    });
 
     return {
       accessToken: loginResult.accessToken,

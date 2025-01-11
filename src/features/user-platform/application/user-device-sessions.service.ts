@@ -18,10 +18,7 @@ export class UserDeviceSessionsService {
   ) {}
 
   async createDeviceSession(dto: CreateDeviceSessionDto) {
-    console.log('session created');
-    // const instance = this.UserDeviceSessionModel.createInstance(dto);
-
-    // await this.userDeviceSessionsRepository.save(instance);
+    await this.userDeviceSessionsRepository.createSession(dto);
   }
 
   async updateDeviceSession(

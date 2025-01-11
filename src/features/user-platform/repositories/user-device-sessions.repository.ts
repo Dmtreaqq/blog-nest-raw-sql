@@ -1,15 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserDeviceSession } from '../domain/user-device-session.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { CreateDeviceSessionDto } from '../dto/create-device-session.dto';
 
 @Injectable()
 export class UserDeviceSessionsRepository {
-  // constructor(
-  //   @InjectModel(UserDeviceSession.name)
-  //   private UserDeviceSessionModel: UserDeviceSessionModelType,
-  // ) {}
-  // async save(deviceSession: UserDeviceSessionDocument) {
-  //   await deviceSession.save();
-  // }
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  async createSession(dto: CreateDeviceSessionDto) {
+    const query = `
+    INSERT INTO users_device_sessions (user_id, device_id, ip, device_name, issued_at, expiration_date) 
+    VALUES ('${dto.userId}', '${dto.deviceId}', '${dto.ip}', '${dto.deviceName}', ${dto.issuedAt}, ${dto.expirationDate});
+    `;
+
+    await this.dataSource.query(query);
+  }
   // async findOne(id: string): Promise<UserDeviceSessionDocument> {
   //   return this.UserDeviceSessionModel.findById(id);
   // }

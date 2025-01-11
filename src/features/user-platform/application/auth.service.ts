@@ -58,18 +58,18 @@ export class AuthService {
     };
 
     // START SESSION
-    // const decodedRefreshToken = this.jwtService.decode<JwtPayload>(
-    //   tokens.refreshToken,
-    // );
-    //
-    // await this.userDeviceSessionsService.createDeviceSession({
-    //   userId,
-    //   deviceId,
-    //   ip: ip ?? 'Unknown Ip',
-    //   issuedAt: decodedRefreshToken.iat,
-    //   expirationDate: decodedRefreshToken.exp,
-    //   deviceName: userAgent ?? 'Unknown name',
-    // });
+    const decodedRefreshToken = this.jwtService.decode<JwtPayload>(
+      tokens.refreshToken,
+    );
+
+    await this.userDeviceSessionsService.createDeviceSession({
+      userId,
+      deviceId,
+      ip: ip ?? 'Unknown Ip',
+      issuedAt: decodedRefreshToken.iat,
+      expirationDate: decodedRefreshToken.exp,
+      deviceName: userAgent ?? 'Unknown name',
+    });
 
     return tokens;
   }
