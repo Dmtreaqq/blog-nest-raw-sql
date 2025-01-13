@@ -77,25 +77,23 @@ export class UserDeviceSessionsService {
   }
 
   async deleteAllDeviceSessionExceptCurrent(deviceId: string, userId: string) {
-    console.log('deleet all sessions');
-    // await this.userDeviceSessionsRepository.deleteManyExcept(deviceId, userId);
+    await this.userDeviceSessionsRepository.deleteManyExcept(deviceId, userId);
   }
 
   async deleteSpecificDeviceSession(deviceId: string, userId: string) {
-    console.log('session deleted');
-    // const session =
-    //   await this.userDeviceSessionsRepository.findByDeviceId(deviceId);
+    const session =
+      await this.userDeviceSessionsRepository.findByDeviceId(deviceId);
 
-    // if (!session) {
-    //   throw new NotFoundException(
-    //     `There is no session with deviceId: ${deviceId}`,
-    //   );
-    // }
+    if (!session) {
+      throw new NotFoundException(
+        `There is no session with deviceId: ${deviceId}`,
+      );
+    }
 
-    // if (session.userId !== userId) {
-    //   throw new ForbiddenException();
-    // }
+    if (session.userId !== userId) {
+      throw new ForbiddenException();
+    }
 
-    // await this.userDeviceSessionsRepository.delete(session);
+    await this.userDeviceSessionsRepository.deleteSession(session.id);
   }
 }

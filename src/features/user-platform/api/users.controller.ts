@@ -48,6 +48,7 @@ export class UsersController {
     return this.usersQueryRepository.getByIdOrThrow(userId);
   }
 
+  // TODO: DELETE ALL USER SESSIONS
   @UseGuards(BasicAuthGuard)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

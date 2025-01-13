@@ -22,11 +22,21 @@ export class UserDeviceSessionsRepository {
   // async findOne(id: string): Promise<UserDeviceSessionDocument> {
   //   return this.UserDeviceSessionModel.findById(id);
   // }
-  // async findByDeviceId(deviceId: string): Promise<UserDeviceSessionDocument> {
-  //   return this.UserDeviceSessionModel.findOne({
-  //     deviceId,
-  //   });
-  // }
+  async findByDeviceId(deviceId: string): Promise<UserDeviceSession> {
+    const query = `
+      SELECT id, user_id as "userId"
+      FROM users_device_sessions
+      WHERE device_id = $1;
+    `;
+
+    const result = await this.dataSource.query(query, [deviceId]);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  }
   // async isDeviceSessionActive(deviceId: string, issuedAt: number) {
   //   const session = await this.UserDeviceSessionModel.findOne({
   //     deviceId,
@@ -62,18 +72,25 @@ export class UserDeviceSessionsRepository {
     const query = `
         UPDATE users_device_sessions
         SET issued_at = ${newIssuedAt}, expiration_date = ${newExpDate}
-        WHERE id = '${sessionId}';
+        WHERE users_device_sessions.id = '${sessionId}';
     `;
 
     await this.dataSource.query(query);
   }
 
-  // async deleteManyExcept(deviceId: string, userId: string) {
-  //   await this.UserDeviceSessionModel.deleteMany({
-  //     userId: userId,
-  //     deviceId: { $ne: deviceId },
-  //   });
-  // }
+  async deleteManyExcept(deviceId: string, userId: string) {
+    // await this.UserDeviceSessionModel.deleteMany({
+    //   userId: userId,
+    //   deviceId: { $ne: deviceId },
+    // });
+
+    const query = `
+      DELETE FROM users_device_sessions
+      WHERE user_id = '${userId}' AND device_id != '${deviceId}';
+    `;
+
+    await this.dataSource.query(query);
+  }
 
   async deleteSession(id: string) {
     const query = `

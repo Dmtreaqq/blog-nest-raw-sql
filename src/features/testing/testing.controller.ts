@@ -10,6 +10,7 @@ export class TestingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAll() {
     await this.dataSource.query(`
+      DELETE FROM users_device_sessions;
       DELETE FROM users;
     `);
   }
