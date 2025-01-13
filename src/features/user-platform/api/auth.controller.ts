@@ -91,27 +91,27 @@ export class AuthController {
   //   });
   // }
 
-  // @UseGuards(JwtRefreshAuthGuard)
-  // @HttpCode(HttpStatus.OK)
-  // @Post('refresh-token')
-  // async refreshToken(
-  //   @GetUser() userContext: { id: string; deviceId: string; iat: number },
-  //   @Res({ passthrough: true }) res: Response,
-  // ) {
-  //   const tokens = await this.authService.refreshTokensPair(
-  //     userContext.deviceId,
-  //     userContext.id,
-  //     userContext.iat,
-  //   );
-  //
-  //   res.cookie('refreshToken', tokens.refreshToken, {
-  //     httpOnly: true,
-  //     secure: true,
-  //     expires: add(new Date(), { hours: 24 }),
-  //   });
-  //
-  //   return tokens;
-  // }
+  @UseGuards(JwtRefreshAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh-token')
+  async refreshToken(
+    @GetUser() userContext: { id: string; deviceId: string; iat: number },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const tokens = await this.authService.refreshTokensPair(
+      userContext.deviceId,
+      userContext.id,
+      userContext.iat,
+    );
+
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: add(new Date(), { hours: 24 }),
+    });
+
+    return tokens;
+  }
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('registration-email-resending')

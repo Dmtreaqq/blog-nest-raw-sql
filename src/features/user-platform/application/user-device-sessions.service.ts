@@ -28,28 +28,28 @@ export class UserDeviceSessionsService {
     newExp: number,
     oldIat: number,
   ) {
-    console.log('session updated');
-    // const session =
-    //   await this.userDeviceSessionsRepository.findByDeviceIdAndUserId(
-    //     deviceId,
-    //     userId,
-    //   );
+    const session =
+      await this.userDeviceSessionsRepository.findByDeviceIdAndUserId(
+        deviceId,
+        userId,
+      );
 
-    // if (!session) {
-    //   throw new UnauthorizedException(
-    //     `There is no session with deviceId: ${deviceId} and userId: ${userId}`,
-    //   );
-    // }
+    if (!session) {
+      throw new UnauthorizedException(
+        `There is no session with deviceId: ${deviceId} and userId: ${userId}`,
+      );
+    }
 
-    // if (session.issuedAt !== oldIat) {
-    //   // TODO: we can delete session I believe
-    //   throw new UnauthorizedException('Session already invalid');
-    // }
+    if (session.issuedAt !== oldIat) {
+      // TODO: we can delete session I believe
+      throw new UnauthorizedException('Session already invalid');
+    }
 
-    // session.issuedAt = newIat;
-    // session.expirationDate = newExp;
-
-    // await this.userDeviceSessionsRepository.save(session);
+    await this.userDeviceSessionsRepository.updateDeviceSession(
+      session.id,
+      newIat,
+      newExp,
+    );
   }
 
   async deleteCurrentDeviceSession(
