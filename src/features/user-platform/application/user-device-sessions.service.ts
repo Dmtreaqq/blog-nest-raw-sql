@@ -57,24 +57,23 @@ export class UserDeviceSessionsService {
     userId: string,
     iat: number,
   ) {
-    // const session =
-    //   await this.userDeviceSessionsRepository.findByDeviceIdAndUserId(
-    //     deviceId,
-    //     userId,
-    //   );
+    const session =
+      await this.userDeviceSessionsRepository.findByDeviceIdAndUserId(
+        deviceId,
+        userId,
+      );
 
-    // if (!session) {
-    //   throw new UnauthorizedException(
-    //     `There is no session with deviceId: ${deviceId} and userId: ${userId}`,
-    //   );
-    // }
+    if (!session) {
+      throw new UnauthorizedException(
+        `There is no session with deviceId: ${deviceId} and userId: ${userId}`,
+      );
+    }
 
-    // if (session.issuedAt !== iat) {
-    //   throw new UnauthorizedException('It is already invalid session');
-    // }
+    if (session.issuedAt !== iat) {
+      throw new UnauthorizedException('It is already invalid session');
+    }
 
-    // await this.userDeviceSessionsRepository.delete(session);
-    console.log('delete current session device');
+    await this.userDeviceSessionsRepository.deleteSession(session.id);
   }
 
   async deleteAllDeviceSessionExceptCurrent(deviceId: string, userId: string) {

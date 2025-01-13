@@ -71,25 +71,25 @@ export class AuthController {
     await this.authService.confirmRegistration(dto);
   }
 
-  // @UseGuards(JwtRefreshAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @Post('logout')
-  // async logout(
-  //   @GetUser() userContext: { deviceId: string; id: string; iat: number },
-  //   @Res({ passthrough: true }) res: Response,
-  // ) {
-  //   await this.authService.logout(
-  //     userContext.deviceId,
-  //     userContext.id,
-  //     userContext.iat,
-  //   );
-  //
-  //   res.clearCookie('refreshToken', {
-  //     httpOnly: true,
-  //     secure: true,
-  //     expires: add(new Date(), { hours: 24 }),
-  //   });
-  // }
+  @UseGuards(JwtRefreshAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('logout')
+  async logout(
+    @GetUser() userContext: { deviceId: string; id: string; iat: number },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.authService.logout(
+      userContext.deviceId,
+      userContext.id,
+      userContext.iat,
+    );
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      expires: add(new Date(), { hours: 24 }),
+    });
+  }
 
   @UseGuards(JwtRefreshAuthGuard)
   @HttpCode(HttpStatus.OK)

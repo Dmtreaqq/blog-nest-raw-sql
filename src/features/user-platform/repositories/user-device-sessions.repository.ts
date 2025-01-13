@@ -62,7 +62,7 @@ export class UserDeviceSessionsRepository {
     const query = `
         UPDATE users_device_sessions
         SET issued_at = ${newIssuedAt}, expiration_date = ${newExpDate}
-        WHERE id = '${sessionId}'
+        WHERE id = '${sessionId}';
     `;
 
     await this.dataSource.query(query);
@@ -74,15 +74,13 @@ export class UserDeviceSessionsRepository {
   //     deviceId: { $ne: deviceId },
   //   });
   // }
-  // async delete(session: UserDeviceSessionDocument) {
-  //   const result = await session.deleteOne();
-  //   if (result.deletedCount !== 1) {
-  //     throw new BadRequestException([
-  //       {
-  //         message: 'Entity was not deleted for some reason',
-  //         field: 'id',
-  //       },
-  //     ]);
-  //   }
-  // }
+
+  async deleteSession(id: string) {
+    const query = `
+        DELETE FROM users_device_sessions
+        WHERE id = '${id}';
+    `;
+
+    await this.dataSource.query(query);
+  }
 }
