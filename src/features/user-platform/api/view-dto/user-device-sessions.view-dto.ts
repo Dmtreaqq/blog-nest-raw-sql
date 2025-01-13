@@ -1,3 +1,5 @@
+import { UserDeviceSession } from '../../domain/user-device-session.entity';
+
 export class UserDeviceSessionsViewDto {
   ip: string;
   title: string;
@@ -5,10 +7,10 @@ export class UserDeviceSessionsViewDto {
   deviceId: string;
 
   // todo typing
-  static mapToView(session: any): UserDeviceSessionsViewDto {
+  static mapToView(session: UserDeviceSession): UserDeviceSessionsViewDto {
     const dto = new UserDeviceSessionsViewDto();
 
-    dto.ip = session.id;
+    dto.ip = session.ip;
     dto.title = session.deviceName;
     dto.deviceId = session.deviceId;
     dto.lastActiveDate = new Date(session.issuedAt * 1000).toISOString();

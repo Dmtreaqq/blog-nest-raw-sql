@@ -97,7 +97,7 @@ export class AuthController {
   async refreshToken(
     @GetUser() userContext: { id: string; deviceId: string; iat: number },
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<{ accessToken: string }> {
     const tokens = await this.authService.refreshTokensPair(
       userContext.deviceId,
       userContext.id,
@@ -110,7 +110,7 @@ export class AuthController {
       expires: add(new Date(), { hours: 24 }),
     });
 
-    return tokens;
+    return { accessToken: tokens.accessToken };
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
