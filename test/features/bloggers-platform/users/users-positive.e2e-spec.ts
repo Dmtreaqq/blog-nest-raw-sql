@@ -1,5 +1,4 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-// import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as request from 'supertest';
 import { API_PREFIX } from '../../../../src/settings/global-prefix.setup';
 import { API_PATH } from '../../../../src/common/constants';
