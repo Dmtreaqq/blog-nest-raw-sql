@@ -22,6 +22,15 @@ CREATE TABLE IF NOT EXISTS users_device_sessions (
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS blogs (
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    name varchar(15) NOT NULL,
+    description varchar(500) NOT NULL,
+    website_url varchar(100) CHECK( website_url ~ '^https://([a-zA-Z0-9_-]+.)+[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$' ) NOT NULL,
+    is_membership boolean NOT NULL,
+    created_at timestamptz NOT NULL default now()
+)
+
 DROP TABLE users_device_sessions;
 
 DROP TABLE users;

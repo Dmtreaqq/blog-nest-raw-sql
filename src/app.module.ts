@@ -7,6 +7,7 @@ import { CommonConfig, Environments } from './common/common.config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserPlatformConfig } from './features/user-platform/config/user-platform.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BloggersPlatformModule } from './features/bloggers-platform/bloggers-platform.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       inject: [CommonConfig],
     }),
     UserPlatformModule,
+    BloggersPlatformModule,
     ThrottlerModule.forRootAsync({
       imports: [UserPlatformModule],
       inject: [UserPlatformConfig],

@@ -26,7 +26,7 @@ export class UsersController {
     private usersService: UsersService,
   ) {}
 
-  // @UseGuards(BasicAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Get(':id')
   async getById(@Param() params: IdInputDto): Promise<UserViewDto> {
     return this.usersQueryRepository.getByIdOrThrow(params.id);
