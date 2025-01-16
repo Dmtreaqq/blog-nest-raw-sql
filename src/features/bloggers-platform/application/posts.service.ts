@@ -51,7 +51,6 @@ export class PostsService {
       title: dto.title,
       shortDescription: dto.shortDescription,
       content: dto.content,
-      blogId: dto.blogId,
     };
 
     await this.postsRepository.updatePost(post.id, postEditDto);

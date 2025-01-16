@@ -71,11 +71,11 @@ export class PostsRepository {
   }
 
   async updatePost(id: string, dto: UpdatePostDto) {
-    const { blogId, content, shortDescription, title } = dto;
+    const { content, shortDescription, title } = dto;
 
     const query = `
         UPDATE posts
-        SET blog_id = '${blogId}', content = '${content}', short_description = '${shortDescription}',
+        SET content = '${content}', short_description = '${shortDescription}',
         title = '${title}'
         WHERE posts.id = $1;
     `;

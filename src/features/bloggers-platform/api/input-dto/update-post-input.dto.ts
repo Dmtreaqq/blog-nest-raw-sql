@@ -1,6 +1,5 @@
 import { IsNotEmpty, IsString, IsUUID, MaxLength } from 'class-validator';
 import { Trim } from '../../../../common/decorators/custom-trim.decorator';
-import { BlogIsExist } from '../../validation/blog-is-exist.decorator';
 
 export class UpdatePostInputDto {
   @MaxLength(30)
@@ -20,11 +19,4 @@ export class UpdatePostInputDto {
   @Trim()
   @IsString()
   content: string;
-
-  @BlogIsExist()
-  @IsUUID()
-  @IsNotEmpty()
-  @Trim()
-  @IsString()
-  blogId: string;
 }
