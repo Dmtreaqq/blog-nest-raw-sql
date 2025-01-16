@@ -12,11 +12,12 @@ import { basicAuthHeader } from './users-test-manager';
 export class PostsTestManager {
   constructor(private app: INestApplication) {}
   async createPost(
+    blogId: string,
     createModel: CreatePostInputDto,
     statusCode: number = HttpStatus.CREATED,
   ): Promise<PostViewDto> {
     const response = await request(this.app.getHttpServer())
-      .post(`${API_PREFIX}${API_PATH.POSTS}`)
+      .post(`${API_PREFIX}${API_PATH.BLOGS}/${blogId}${API_PATH.POSTS}`)
       .send(createModel)
       .set('authorization', basicAuthHeader)
       .expect(statusCode);
@@ -29,7 +30,7 @@ export class PostsTestManager {
 
     for (let i = 0; i < count; ++i) {
       await delay(50);
-      const response = this.createPost({
+      const response = this.createPost(blogId, {
         blogId,
         title: `postTitle` + i,
         shortDescription: `post${i}description`,

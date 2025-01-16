@@ -144,7 +144,7 @@ describe('Posts Negative (e2e)', () => {
 
   it('should return 400 for not incorrect BlogId while PUT post', async () => {
     const blog = await blogsTestManager.createBlog(createBlogInput);
-    const post = await postsTestManager.createPost({
+    const post = await postsTestManager.createPost(blog.id, {
       ...createPostInput,
       blogId: blog.id,
     });
@@ -167,7 +167,7 @@ describe('Posts Negative (e2e)', () => {
 
   it('should return 400 for incorrect TITLE while PUT post', async () => {
     const blog = await blogsTestManager.createBlog(createBlogInput);
-    const post = await postsTestManager.createPost({
+    const post = await postsTestManager.createPost(blog.id, {
       ...createPostInput,
       blogId: blog.id,
     });
@@ -190,7 +190,7 @@ describe('Posts Negative (e2e)', () => {
 
   it('should return 400 for incorrect TITLE length while PUT post', async () => {
     const blog = await blogsTestManager.createBlog(createBlogInput);
-    const post = await postsTestManager.createPost({
+    const post = await postsTestManager.createPost(blog.id, {
       ...createPostInput,
       blogId: blog.id,
     });
