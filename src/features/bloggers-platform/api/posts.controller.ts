@@ -29,7 +29,24 @@ import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard';
 import { JwtOptionalAuthGuard } from '../../../common/guards/jwt-optional-auth.guard';
 // import { PostsRepository } from '../repositories/posts.repository';
 
-@Controller(['sa/posts', 'posts'])
+@Controller('sa/posts')
+export class AdminPostsController {
+  constructor(
+    private postsQueryRepository: PostsQueryRepository,
+    private postsService: PostsService,
+    // private postsRepository: PostsRepository,
+  ) {}
+
+  @UseGuards(BasicAuthGuard)
+  @Post()
+  async createPost(@Body() dto: CreatePostInputDto) {
+    const postId = await this.postsService.createPostForBlog(dto, dto.blogId);
+
+    return this.postsQueryRepository.getByIdOrThrow(postId);
+  }
+}
+
+@Controller('posts')
 export class PostsController {
   constructor(
     private postsQueryRepository: PostsQueryRepository,
@@ -67,14 +84,6 @@ export class PostsController {
     @GetUser() userContext: UserContext,
   ): Promise<PostViewDto> {
     return this.postsQueryRepository.getByIdOrThrow(params.id, userContext.id);
-  }
-
-  @UseGuards(BasicAuthGuard)
-  @Post()
-  async createPost(@Body() dto: CreatePostInputDto) {
-    const postId = await this.postsService.createPostForBlog(dto, dto.blogId);
-
-    return this.postsQueryRepository.getByIdOrThrow(postId);
   }
 
   // @UseGuards(JwtAuthGuard)

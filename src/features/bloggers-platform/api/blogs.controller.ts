@@ -29,8 +29,8 @@ import { PostsQueryRepository } from '../repositories/query/posts.query-reposito
 import { PostQueryGetParams } from './input-dto/get-posts-query.dto';
 import { UpdatePostInputDto } from './input-dto/update-post-input.dto';
 
-@Controller(['sa/blogs', 'blogs'])
-export class BlogsController {
+@Controller('sa/blogs')
+export class AdminBlogsController {
   constructor(
     private blogsService: BlogsService,
     private postsService: PostsService,
@@ -39,17 +39,14 @@ export class BlogsController {
   ) {}
 
   @UseGuards(BasicAuthGuard)
-  @Post(':id/posts')
-  async createPostForBlog(
-    @Body() dto: CreatePostForBlogInputDto,
-    @Param() param: IdInputDto,
-  ) {
-    const postId = await this.postsService.createPostForBlog(dto, param.id);
-
-    return this.postsQueryRepository.getByIdOrThrow(postId);
+  @Get()
+  async getAll(
+    @Query() query: BlogQueryGetParams,
+  ): Promise<BasePaginationViewDto<BlogViewDto[]>> {
+    return this.blogsQueryRepository.getAll(query);
   }
 
-  @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(BasicAuthGuard)
   @Get(':id/posts')
   async getPostsForBlog(
     @Query() query: PostQueryGetParams,
@@ -64,23 +61,22 @@ export class BlogsController {
   }
 
   @UseGuards(BasicAuthGuard)
+  @Post(':id/posts')
+  async createPostForBlog(
+    @Body() dto: CreatePostForBlogInputDto,
+    @Param() param: IdInputDto,
+  ) {
+    const postId = await this.postsService.createPostForBlog(dto, param.id);
+
+    return this.postsQueryRepository.getByIdOrThrow(postId);
+  }
+
+  @UseGuards(BasicAuthGuard)
   @Post()
   async createBlog(@Body() dto: CreateBlogInput) {
     const blogId = await this.blogsService.createBlog(dto);
 
     return this.blogsQueryRepository.getByIdOrThrow(blogId);
-  }
-
-  @Get()
-  async getAll(
-    @Query() query: BlogQueryGetParams,
-  ): Promise<BasePaginationViewDto<BlogViewDto[]>> {
-    return this.blogsQueryRepository.getAll(query);
-  }
-
-  @Get(':id')
-  async getById(@Param() params: IdInputDto) {
-    return this.blogsQueryRepository.getByIdOrThrow(params.id);
   }
 
   @UseGuards(BasicAuthGuard)
@@ -109,5 +105,39 @@ export class BlogsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async editPost(@Param() params: IdInputDto, @Body() dto: UpdatePostInputDto) {
     return this.postsService.editPost(params.id, params.postId, dto);
+  }
+}
+
+@Controller('blogs')
+export class BlogsController {
+  constructor(
+    private blogsQueryRepository: BlogsQueryRepository,
+    private postsQueryRepository: PostsQueryRepository,
+  ) {}
+
+  @UseGuards(JwtOptionalAuthGuard)
+  @Get(':id/posts')
+  async getPostsForBlog(
+    @Query() query: PostQueryGetParams,
+    @Param() params: IdInputDto,
+    @GetUser() userContext: UserContext,
+  ) {
+    return this.postsQueryRepository.getAllPostsForBlog(
+      query,
+      params.id,
+      userContext.id,
+    );
+  }
+
+  @Get()
+  async getAll(
+    @Query() query: BlogQueryGetParams,
+  ): Promise<BasePaginationViewDto<BlogViewDto[]>> {
+    return this.blogsQueryRepository.getAll(query);
+  }
+
+  @Get(':id')
+  async getById(@Param() params: IdInputDto) {
+    return this.blogsQueryRepository.getByIdOrThrow(params.id);
   }
 }
