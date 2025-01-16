@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
-  isMongoId,
+  isMongoId, isUUID,
   registerDecorator,
   ValidationArguments,
   ValidationOptions,
@@ -15,7 +15,7 @@ export class BlogIsExistConstraint implements ValidatorConstraintInterface {
   constructor(private readonly blogsRepository: BlogsRepository) {}
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async validate(value: any, args?: ValidationArguments) {
-    if (!isMongoId(value)) {
+    if (!isUUID(value)) {
       return false;
     }
     const blog = await this.blogsRepository.blogIsExist(value);

@@ -40,8 +40,25 @@ export class BlogsRepository {
         WHERE blogs.id = $1;
     `;
 
-
     await this.dataSource.query(query, [id]);
+  }
+
+  async getById(id: string): Promise<Blog | null> {
+    const result = await this.dataSource.query(
+      `
+    SELECT website_url as "websiteUrl", is_membership as "isMembership", created_at as "createdAt",
+    id, name, description
+    FROM blogs
+    WHERE blogs.id = $1
+    `,
+      [id],
+    );
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
   }
 
   async getByIdOrThrow(id: string): Promise<Blog> {
@@ -80,7 +97,7 @@ export class BlogsRepository {
   async blogIsExist(id: string): Promise<boolean> {
     const result = await this.dataSource.query(
       `
-      SELECT id
+      SELECT id, name
       FROM blogs
       WHERE blogs.id = $1;
     `,

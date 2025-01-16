@@ -31,29 +31,16 @@ CREATE TABLE IF NOT EXISTS blogs (
     created_at timestamptz NOT NULL default now()
 )
 
-DROP TABLE users_device_sessions;
-
-DROP TABLE users;
-
-SELECT version();
-
-SELECT * FROM users_device_sessions;
-
-SELECT id, login, email, created_at as "createdAt"
-      FROM users
-      ORDER BY "createdAt" asc;
-
-SELECT * FROM users;
-
-
-
-select count(*) from (SELECT id, email
-FROM users
-WHERE email ILIKE '%\x99%') as subquery;
-
-delete from users where users.login = 'dimon';
-
-INSERT INTO users(login, password, email, is_confirmed) values('lol', 'password', 'email99p@gg.kek', true);
+CREATE TABLE IF NOT EXISTS posts (
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    title varchar NOT NULL,
+    short_description varchar NOT NULL,
+    "content" varchar NOT NULL,
+    blog_name varchar NOT NULL,
+	blog_id uuid NOT NULL,
+    created_at timestamptz NOT NULL default now(),
+	FOREIGN KEY (blog_id) REFERENCES blogs(id)
+)
 
 INSERT INTO users (id, email, login, password, is_confirmed, created_at)
 VALUES

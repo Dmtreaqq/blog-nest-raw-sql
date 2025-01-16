@@ -182,14 +182,14 @@ export class UsersRepository {
     return result[0].id;
   }
 
-  async getByIdOrThrow(id: string): Promise<any> {
+  async getByIdOrThrow(id: string): Promise<User> {
     const query = `
     SELECT *
     FROM users
     WHERE users.id = $1;
     `;
 
-    const result = await this.dataSource.query(query, [id]);
+    const result: User[] = await this.dataSource.query(query, [id]);
 
     if (result.length === 0) {
       throw new NotFoundException([
