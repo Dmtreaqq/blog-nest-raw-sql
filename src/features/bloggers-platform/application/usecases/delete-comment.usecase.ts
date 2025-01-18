@@ -20,29 +20,29 @@ export class DeleteCommentUseCase
   ) {}
 
   async execute(command: DeleteCommentCommand) {
-  //   const user = await this.usersRepository.findById(command.userId);
-  //   if (!user) {
-  //     throw new UnauthorizedException([
-  //       {
-  //         message: 'There is no user',
-  //         field: 'userId',
-  //       },
-  //     ]);
-  //   }
-  //
-  //   const comment = await this.commentsRepository.getByIdOrThrow(
-  //     command.commentId,
-  //   );
-  //
-  //   if (comment.commentatorId !== user.id) {
-  //     throw new ForbiddenException([
-  //       {
-  //         message: 'You try delete the comment that is not your own',
-  //         field: 'commentId',
-  //       },
-  //     ]);
-  //   }
-  //
-  //   await this.commentsRepository.deleteComment(comment);
+    const user = await this.usersRepository.findById(command.userId);
+    if (!user) {
+      throw new UnauthorizedException([
+        {
+          message: 'There is no user',
+          field: 'userId',
+        },
+      ]);
+    }
+
+    const comment: any = await this.commentsRepository.getByIdOrThrow(
+      command.commentId,
+    );
+
+    if (comment.commentatorId !== user.id) {
+      throw new ForbiddenException([
+        {
+          message: 'You try delete the comment that is not your own',
+          field: 'commentId',
+        },
+      ]);
+    }
+
+    await this.commentsRepository.deleteComment(comment.id);
   }
 }

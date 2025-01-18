@@ -14,34 +14,32 @@ export class UpdateCommentUseCase
 {
   constructor(
     private commentRepository: CommentsRepository,
-    // TODO: а как иначе??
     private usersRepository: UsersRepository,
   ) {}
 
   async execute(command: UpdateCommentCommand): Promise<void> {
-    // const dto = command.dto;
-    //
-    // const user = await this.usersRepository.findById(dto.userId);
-    // if (!user) {
-    //   throw new UnauthorizedException([
-    //     {
-    //       message: 'User not found',
-    //       field: 'userId',
-    //     },
-    //   ]);
-    // }
-    // const comment = await this.commentRepository.getByIdOrThrow(dto.commentId);
-    //
-    // if (comment.commentatorId !== user.id) {
-    //   throw new ForbiddenException([
-    //     {
-    //       message: 'You try to edit not your comment',
-    //       field: 'commentId',
-    //     },
-    //   ]);
-    // }
-    //
-    // comment.content = dto.content;
-    // await this.commentRepository.save(comment);
+    const dto = command.dto;
+
+    const user = await this.usersRepository.findById(dto.userId);
+    if (!user) {
+      throw new UnauthorizedException([
+        {
+          message: 'User not found',
+          field: 'userId',
+        },
+      ]);
+    }
+    const comment = await this.commentRepository.getByIdOrThrow(dto.commentId);
+
+    if (comment.commentatorId !== user.id) {
+      throw new ForbiddenException([
+        {
+          message: 'You try to edit not your comment',
+          field: 'commentId',
+        },
+      ]);
+    }
+
+    await this.commentRepository.updateCommentContent(comment.id, dto.content);
   }
 }

@@ -7,6 +7,7 @@ import { Comment } from '../domain/comment.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreateCommentDto } from '../dto/create-comment.dto';
+import { UpdateCommentDto } from '../dto/update-comment.dto';
 
 @Injectable()
 export class CommentsRepository {
@@ -29,39 +30,50 @@ export class CommentsRepository {
     return comment[0].id;
   }
 
-  async getById(id: string) {
-    // return this.CommentModel.findById(id);
-    return {} as any;
+  // async getById(id: string) {
+  //   // return this.CommentModel.findById(id);
+  //   return {} as any;
+  // }
+
+  async deleteComment(id: string) {
+    await this.dataSource.query(
+      `
+      DELETE FROM comments
+      WHERE comments.id = $1
+    `,
+      [id],
+    );
   }
 
-  async deleteComment(comment: Comment) {
-    // const result = await comment.deleteOne();
-    //
-    // if (result.deletedCount !== 1) {
-    //   throw new BadRequestException([
-    //     {
-    //       message: 'Entity was not deleted for some reason',
-    //       field: 'id',
-    //     },
-    //   ]);
-    // }
+  async updateCommentContent(id: string, content: string) {
+    const query = `
+        UPDATE comments
+        SET content = $1
+        WHERE comments.id = $2;
+    `;
 
-    return {} as any;
+    await this.dataSource.query(query, [content, id]);
   }
 
   async getByIdOrThrow(id: string) {
-    // const comment = await this.CommentModel.findById(id);
-    //
-    // if (!comment) {
-    //   throw new NotFoundException([
-    //     {
-    //       message: 'Comment not found',
-    //       field: 'id',
-    //     },
-    //   ]);
-    // }
-    //
-    // return comment;
-    return {} as any;
+    const result = await this.dataSource.query(
+      `
+    SELECT comments.id, comments.commentator_id as "commentatorId"
+    FROM comments
+    WHERE comments.id = $1
+    `,
+      [id],
+    );
+
+    if (result.length === 0) {
+      throw new NotFoundException([
+        {
+          message: 'Comment not found',
+          field: 'id',
+        },
+      ]);
+    }
+
+    return result[0];
   }
 }

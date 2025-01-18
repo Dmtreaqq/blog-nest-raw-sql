@@ -43,34 +43,34 @@ export class CommentsController {
     );
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @Delete(':id')
-  // async deleteById(
-  //   @Param() params: IdInputDto,
-  //   @GetUser() userContext: UserContext,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new DeleteCommentCommand(userContext.id, params.id),
-  //   );
-  // }
-  //
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @Put(':id')
-  // async editById(
-  //   @Param() params: IdInputDto,
-  //   @GetUser() userContext: UserContext,
-  //   @Body() dto: UpdateCommentInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new UpdateCommentCommand({
-  //       userId: userContext.id,
-  //       commentId: params.id,
-  //       content: dto.content,
-  //     }),
-  //   );
-  // }
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  async deleteById(
+    @Param() params: IdInputDto,
+    @GetUser() userContext: UserContext,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new DeleteCommentCommand(userContext.id, params.id),
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id')
+  async editById(
+    @Param() params: IdInputDto,
+    @GetUser() userContext: UserContext,
+    @Body() dto: UpdateCommentInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new UpdateCommentCommand({
+        userId: userContext.id,
+        commentId: params.id,
+        content: dto.content,
+      }),
+    );
+  }
 
   // @UseGuards(JwtAuthGuard)
   // @HttpCode(HttpStatus.NO_CONTENT)
