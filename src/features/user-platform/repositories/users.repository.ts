@@ -14,9 +14,21 @@ import { randomUUID } from 'node:crypto';
 export class UsersRepository {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  // async findById(id: string): Promise<any> {
-  //   return this.UserModel.findById(id);
-  // }
+  async findById(id: string): Promise<User | null> {
+    const query = `
+      SELECT id, email, is_confirmed as "isConfirmed", confirmation_exp_date as "confirmationCodeExpirationDate",
+      confirmation_code as "confirmationCode", recovery_code as "recoveryCode", login,
+      recovery_exp_date as "recoveryCodeExpirationDate"
+      FROM users
+      WHERE id = $1
+    `;
+
+    const user = await this.dataSource.query(query, [id]);
+
+    if (user.length === 0) return null;
+
+    return user[0];
+  }
 
   async findByConfirmationCodeOrThrow(code: string): Promise<User> {
     const query = `

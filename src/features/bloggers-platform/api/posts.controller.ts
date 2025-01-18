@@ -27,6 +27,12 @@ import { GetUser } from '../../../common/decorators/get-user.decorator';
 import { UserContext } from '../../../common/dto/user-context.dto';
 import { BasicAuthGuard } from '../../../common/guards/basic-auth.guard';
 import { JwtOptionalAuthGuard } from '../../../common/guards/jwt-optional-auth.guard';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { CreateCommentInputDto } from './input-dto/create-comment-input.dto';
+import { CreateCommentCommand } from '../application/usecases/create-comment.usecase';
+import { CommandBus } from '@nestjs/cqrs';
+import { CommentsQueryRepository } from '../repositories/query/comments.query-repository';
+import { CommentsQueryGetParams } from './input-dto/get-comments-query.dto';
 // import { PostsRepository } from '../repositories/posts.repository';
 
 @Controller('sa/posts')
@@ -50,23 +56,25 @@ export class AdminPostsController {
 export class PostsController {
   constructor(
     private postsQueryRepository: PostsQueryRepository,
+    private commentsQueryRepository: CommentsQueryRepository,
     private postsService: PostsService,
+    private commandBus: CommandBus,
     // private postsRepository: PostsRepository,
   ) {}
 
-  // @UseGuards(JwtOptionalAuthGuard)
-  // @Get(':id/comments')
-  // async getCommentsForPost(
-  //   @Param() params: IdInputDto,
-  //   @Query() query: CommentsQueryGetParams,
-  //   @GetUser() userContext: UserContext,
-  // ) {
-  //   return this.commentsQueryRepository.getAll(
-  //     query,
-  //     params.id,
-  //     userContext.id,
-  //   );
-  // }
+  @UseGuards(JwtOptionalAuthGuard)
+  @Get(':id/comments')
+  async getCommentsForPost(
+    @Param() params: IdInputDto,
+    @Query() query: CommentsQueryGetParams,
+    @GetUser() userContext: UserContext,
+  ) {
+    return this.commentsQueryRepository.getAll(
+      query,
+      params.id,
+      userContext.id,
+    );
+  }
 
   @UseGuards(JwtOptionalAuthGuard)
   @Get()
@@ -86,23 +94,23 @@ export class PostsController {
     return this.postsQueryRepository.getByIdOrThrow(params.id, userContext.id);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Post(':id/comments')
-  // async createCommentForPost(
-  //   @Body() commentInputDto: CreateCommentInputDto,
-  //   @Param() params: IdInputDto,
-  //   @GetUser() userContext: UserContext,
-  // ) {
-  //   const commentId = await this.commandBus.execute(
-  //     new CreateCommentCommand({
-  //       ...commentInputDto,
-  //       postId: params.id,
-  //       userId: userContext.id,
-  //     }),
-  //   );
-  //
-  //   return this.commentsQueryRepository.getByIdOrThrow(commentId);
-  // }
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/comments')
+  async createCommentForPost(
+    @Body() commentInputDto: CreateCommentInputDto,
+    @Param() params: IdInputDto,
+    @GetUser() userContext: UserContext,
+  ) {
+    const commentId = await this.commandBus.execute(
+      new CreateCommentCommand({
+        ...commentInputDto,
+        postId: params.id,
+        userId: userContext.id,
+      }),
+    );
+
+    return this.commentsQueryRepository.getByIdOrThrow(commentId);
+  }
 
   // @UseGuards(JwtAuthGuard)
   // @HttpCode(HttpStatus.NO_CONTENT)

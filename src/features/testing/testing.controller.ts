@@ -10,6 +10,8 @@ export class TestingController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteAll() {
     await this.dataSource.query(`
+      DELETE FROM comments;
+
       DELETE FROM posts;
       DELETE FROM blogs;
 

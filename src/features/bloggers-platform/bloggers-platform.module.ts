@@ -9,6 +9,18 @@ import { AdminPostsController, PostsController } from './api/posts.controller';
 import { PostsService } from './application/posts.service';
 import { PostsRepository } from './repositories/posts.repository';
 import { PostsQueryRepository } from './repositories/query/posts.query-repository';
+import { CommentsController } from './api/comments.controller';
+import { CommentsRepository } from './repositories/comments.repository';
+import { CommentsQueryRepository } from './repositories/query/comments.query-repository';
+import { UpdateCommentUseCase } from './application/usecases/update-comment.usecase';
+import { DeleteCommentUseCase } from './application/usecases/delete-comment.usecase';
+import { CreateCommentUseCase } from './application/usecases/create-comment.usecase';
+
+const useCases = [
+  CreateCommentUseCase,
+  DeleteCommentUseCase,
+  UpdateCommentUseCase,
+];
 
 @Module({
   imports: [UserPlatformModule],
@@ -17,6 +29,7 @@ import { PostsQueryRepository } from './repositories/query/posts.query-repositor
     PostsController,
     AdminBlogsController,
     AdminPostsController,
+    CommentsController,
   ],
   providers: [
     BlogsService,
@@ -26,6 +39,9 @@ import { PostsQueryRepository } from './repositories/query/posts.query-repositor
     PostsService,
     PostsRepository,
     PostsQueryRepository,
+    CommentsRepository,
+    CommentsQueryRepository,
+    ...useCases,
   ],
   exports: [],
 })
