@@ -63,6 +63,17 @@ CREATE TABLE IF NOT EXISTS comments (
 	FOREIGN KEY (commentator_id) REFERENCES users(id)
 )
 
+CREATE TABLE IF NOT EXISTS reactions (
+    id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id uuid NOT NULL,
+    entity_id uuid NOT NULL,
+    reaction_status varchar NOT NULL,
+    entity_type varchar NOT NULL,
+    created_at timestamptz NOT NULL default now(),
+	FOREIGN KEY (user_id) REFERENCES users(id),
+	UNIQUE (user_id, entity_id)
+)
+
 INSERT INTO users (id, email, login, password, is_confirmed, created_at)
 VALUES
   ('422fe805-8fe5-4113-9f3e-f6df28fa9e6f', 'email2p@gg.om', 'loSer', 'hashed_password1', true, '2025-01-10T16:41:53.422Z'),
