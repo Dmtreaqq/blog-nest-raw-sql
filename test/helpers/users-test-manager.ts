@@ -36,7 +36,7 @@ export class UsersTestManager {
       .post(`${API_PREFIX}${API_PATH.USERS}`)
       .send(createModel)
       .set('authorization', basicAuthHeader)
-      .expect(statusCode);
+      .expect(HttpStatus.CREATED);
 
     return response.body;
   }

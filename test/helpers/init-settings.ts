@@ -13,6 +13,7 @@ import { UsersTestManager } from './users-test-manager';
 import * as cookieParser from 'cookie-parser';
 import { BlogsTestManager } from './blogs-test-manager';
 import { PostsTestManager } from './posts-test-manager';
+import { CommentsTestManager } from './comments-test-manager';
 
 export const initSettings = async (
   //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
@@ -44,7 +45,7 @@ export const initSettings = async (
   const blogsTestManager = new BlogsTestManager(app);
   const postsTestManager = new PostsTestManager(app);
   const usersTestManager = new UsersTestManager(app);
-  // const commentsTestManager = new CommentsTestManager(app);
+  const commentsTestManager = new CommentsTestManager(app);
 
   await deleteAllData(app);
 
@@ -53,6 +54,6 @@ export const initSettings = async (
     blogsTestManager,
     postsTestManager,
     usersTestManager,
-    // commentsTestManager,
+    commentsTestManager,
   };
 };

@@ -17,7 +17,7 @@ export class PostsTestManager {
     statusCode: number = HttpStatus.CREATED,
   ): Promise<PostViewDto> {
     const response = await request(this.app.getHttpServer())
-      .post(`${API_PREFIX}${API_PATH.BLOGS}/${blogId}${API_PATH.POSTS}`)
+      .post(`${API_PREFIX}/sa${API_PATH.BLOGS}/${blogId}${API_PATH.POSTS}`)
       .send(createModel)
       .set('authorization', basicAuthHeader)
       .expect(statusCode);

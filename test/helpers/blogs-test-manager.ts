@@ -14,10 +14,10 @@ export class BlogsTestManager {
     statusCode: number = HttpStatus.CREATED,
   ): Promise<BlogViewDto> {
     const response = await request(this.app.getHttpServer())
-      .post(`${API_PREFIX}/blogs`)
+      .post(`${API_PREFIX}/sa/blogs`)
       .send(createModel)
       .set('authorization', basicAuthHeader)
-      .expect(statusCode);
+      .expect(HttpStatus.CREATED);
 
     return response.body;
   }

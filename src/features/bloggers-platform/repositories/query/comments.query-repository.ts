@@ -31,7 +31,7 @@ export class CommentsQueryRepository {
     }
 
     const sqlQuery = `
-      SELECT comments.id, comments.created_at as "createdAt", comments.commentator_id as "userId",
+      SELECT comments.id, comments.created_at as "createdAt", comments.commentator_id as "commentatorId",
       users.login, comments.content
       FROM comments
       LEFT JOIN users ON comments.commentator_id = users.id
@@ -42,6 +42,7 @@ export class CommentsQueryRepository {
       `;
 
     const comments: Comment[] = await this.dataSource.query(sqlQuery, [postId]);
+
     const totalCount = await this.dataSource.query(
       `
       SELECT COUNT(*) FROM (
@@ -87,7 +88,7 @@ export class CommentsQueryRepository {
 
   async getByIdOrThrow(id: string, userId?: string): Promise<CommentViewDto> {
     const query = `
-      SELECT comments.id, comments.created_at as "createdAt", comments.commentator_id as "userId",
+      SELECT comments.id, comments.created_at as "createdAt", comments.commentator_id as "commentatorId",
       users.login, comments.content
       FROM comments
       LEFT JOIN users ON comments.commentator_id = users.id
