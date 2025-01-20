@@ -35,8 +35,8 @@ export class CommentViewDto {
     };
 
     dto.likesInfo = {
-      likesCount: likesDislikesDto?.likesCount ?? 0,
-      dislikesCount: likesDislikesDto?.dislikesCount ?? 0,
+      likesCount: Number(likesDislikesDto?.likesCount) ?? 0,
+      dislikesCount: Number(likesDislikesDto?.dislikesCount) ?? 0,
       myStatus: userStatus ?? ReactionStatus.None,
     };
 

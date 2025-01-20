@@ -46,11 +46,13 @@ export class CommentsQueryRepository {
     const commentIds = comments.map((comm) => "'" + comm.id + "'").join(',');
 
     const likesDislikesQuery = `
-      SELECT
-        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Like}' THEN 1 END) as "likesCount",
-        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Dislike}' THEN 1 END) as "dislikesCount"
-      FROM reactions
-      WHERE reactions.entity_id IN (${commentIds});
+        SELECT c.id as "commentId",
+	      COUNT (CASE WHEN r.reaction_status = 'Like' THEN 1 END) as "likesCount",
+	      COUNT (CASE WHEN r.reaction_status = 'Dislike' THEN 1 END) as "dislikesCount"
+        FROM comments c
+        LEFT JOIN reactions r ON r.entity_id = c.id
+        WHERE c.id IN (${commentIds})
+        GROUP BY "commentId", r.reaction_status;
     `;
 
     const likesDislikesResult = await this.dataSource.query(likesDislikesQuery);
@@ -71,7 +73,7 @@ export class CommentsQueryRepository {
       CommentViewDto.mapToView(
         comm,
         comm.reactionStatus,
-        likesDislikesResult[0][index],
+        likesDislikesResult.find((obj) => obj.commentId === comm.id),
       ),
     );
 
@@ -89,7 +91,7 @@ export class CommentsQueryRepository {
       users.login, comments.content ${userId ? ', reactions.reaction_status as "reactionStatus"' : ''}
       FROM comments
       LEFT JOIN users ON comments.commentator_id = users.id
-      ${userId ? `LEFT JOIN reactions ON reactions.user_id = '${userId}'` : ''}
+      ${userId ? `LEFT JOIN reactions ON reactions.user_id = '${userId}' AND reactions.entity_id = comments.id` : ''}
       WHERE comments.id = $1;
     `;
 

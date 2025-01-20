@@ -49,7 +49,7 @@ export class ReactionRepository {
   async updateReaction(reactionId: string, reactionStatus: ReactionDbStatus) {
     const query = `
       UPDATE reactions
-      SET reaction_status = $2
+      SET reaction_status = $2, created_at = now()
       WHERE reactions.id = $1;
     `;
 

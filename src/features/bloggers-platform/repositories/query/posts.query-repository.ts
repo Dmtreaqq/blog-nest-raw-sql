@@ -3,15 +3,10 @@ import { Post } from '../../domain/post.entity';
 import { PostViewDto } from '../../api/view-dto/post.view-dto';
 import { PostQueryGetParams } from '../../api/input-dto/get-posts-query.dto';
 import { BasePaginationViewDto } from '../../../../common/dto/base-pagination.view-dto';
-import {
-  ReactionDbStatus,
-  ReactionStatus,
-} from '../../api/enums/ReactionStatus';
+import { ReactionStatus } from '../../api/enums/ReactionStatus';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { isUUID } from 'class-validator';
 import { Blog } from '../../domain/blog.entity';
-import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -44,9 +39,10 @@ export class PostsQueryRepository {
 
     const sqlQuery = `
       SELECT p.id, p.title, p.short_description as "shortDescription", p.content, blogs.id as "blogId",
-      blogs.name as "blogName", p.created_at as "createdAt"
+      blogs.name as "blogName", p.created_at as "createdAt" ${userId ? ', reactions.reaction_status as "reactionStatus"' : ''}
       FROM posts as p
       LEFT JOIN blogs ON blogs.id = p.blog_id
+      ${userId ? `LEFT JOIN reactions ON reactions.user_id = '${userId}' AND reactions.entity_id = p.id` : ''}
       WHERE blogs.id = $1
       ORDER BY "${sortBy}" ${sortDirection}
       LIMIT ${pageSize}
@@ -54,6 +50,20 @@ export class PostsQueryRepository {
     `;
 
     const posts: Post[] = await this.dataSource.query(`${sqlQuery};`, [blogId]);
+
+    const postIds = posts.map((post) => "'" + post.id + "'").join(',');
+
+    const likesDislikesQuery = `
+        SELECT p.id as "postId",
+	      COUNT (CASE WHEN r.reaction_status = 'Like' THEN 1 END) as "likesCount",
+	      COUNT (CASE WHEN r.reaction_status = 'Dislike' THEN 1 END) as "dislikesCount"
+        FROM posts p
+        LEFT JOIN reactions r ON r.entity_id = p.id
+        WHERE p.id IN (${postIds})
+        GROUP BY "postId", r.reaction_status;
+    `;
+
+    const likesDislikesResult = await this.dataSource.query(likesDislikesQuery);
 
     const totalCount = await this.dataSource.query(
       `
@@ -67,8 +77,39 @@ export class PostsQueryRepository {
       [blogId],
     );
 
-    const items = posts.map((post) => {
-      return PostViewDto.mapToView(post, null);
+    const lastLikesQuery = `
+        WITH RankedReactions AS (
+    SELECT 
+        id,
+        entity_id,
+        reaction_status,
+        ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY created_at DESC) AS row_num
+    FROM 
+        reactions
+    WHERE 
+        entity_id IN (${postIds}) AND reaction_status = 'Like'
+)
+SELECT 
+    id, 
+    entity_id as "postId", 
+    reaction_status as "reactionStatus"
+FROM 
+    RankedReactions
+WHERE 
+    row_num <= 3
+ORDER BY 
+    entity_id, row_num;
+    `;
+
+    const lastLikesResult = await this.dataSource.query(lastLikesQuery);
+
+    const items = posts.map((post: any, index) => {
+      return PostViewDto.mapToView(
+        post,
+        post.reactionStatus,
+        likesDislikesResult.find((obj) => obj.postId === post.id),
+        lastLikesResult[0][index],
+      );
     });
 
     return BasePaginationViewDto.mapToView({
@@ -87,15 +128,30 @@ export class PostsQueryRepository {
 
     const sqlQuery = `
       SELECT p.id, p.title, p.short_description as "shortDescription", p.content, blogs.id as "blogId",
-      blogs.name as "blogName", p.created_at as "createdAt"
+      blogs.name as "blogName", p.created_at as "createdAt" ${userId ? ', reactions.reaction_status as "reactionStatus"' : ''}
       FROM posts as p
       LEFT JOIN blogs ON blogs.id = p.blog_id
+      ${userId ? `LEFT JOIN reactions ON reactions.user_id = '${userId}' AND reactions.entity_id = p.id` : ''}
       ORDER BY "${sortBy}" ${sortDirection}
       LIMIT ${pageSize}
       OFFSET ${query.calculateSkip()}
     `;
 
     const posts: Post[] = await this.dataSource.query(`${sqlQuery};`);
+
+    const postIds = posts.map((post) => "'" + post.id + "'").join(',');
+
+    const likesDislikesQuery = `
+        SELECT p.id as "postId",
+	      COUNT (CASE WHEN r.reaction_status = 'Like' THEN 1 END) as "likesCount",
+	      COUNT (CASE WHEN r.reaction_status = 'Dislike' THEN 1 END) as "dislikesCount"
+        FROM posts p
+        LEFT JOIN reactions r ON r.entity_id = p.id
+        WHERE p.id IN (${postIds})
+        GROUP BY "postId", r.reaction_status;
+    `;
+
+    const likesDislikesResult = await this.dataSource.query(likesDislikesQuery);
 
     const totalCount = await this.dataSource.query(
       `
@@ -107,8 +163,44 @@ export class PostsQueryRepository {
       `,
     );
 
-    const items = posts.map((post) => {
-      return PostViewDto.mapToView(post, null);
+    const lastLikesQuery = `
+        WITH RankedReactions AS (
+    SELECT 
+        r.entity_id,
+        r.reaction_status,
+        r.created_at,
+        u.id,
+        u.login,
+        ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY r.created_at DESC) AS row_num
+    FROM 
+        reactions r
+    LEFT JOIN users u ON r.user_id = u.id
+    WHERE 
+        r.entity_id IN (${postIds}) AND r.reaction_status = 'Like'
+    )
+    SELECT 
+        entity_id as "postId", 
+        reaction_status as "reactionStatus",
+        created_at as "addedAt",
+        id as "userId",
+        login
+    FROM RankedReactions
+    WHERE 
+        row_num <= 3
+    ORDER BY 
+        entity_id, row_num;
+    `;
+
+    const lastLikesResult = await this.dataSource.query(lastLikesQuery);
+    // console.log(lastLikesResult)
+
+    const items = posts.map((post: any, index) => {
+      return PostViewDto.mapToView(
+        post,
+        post.reactionStatus,
+        likesDislikesResult.find((obj) => obj.postId === post.id),
+        lastLikesResult,
+      );
     });
 
     return BasePaginationViewDto.mapToView({
@@ -123,13 +215,14 @@ export class PostsQueryRepository {
     const query = `
       SELECT posts.id as "id", posts.title as "title",
       posts.content as "content", posts.blog_id as "blogId", posts.short_description as "shortDescription",
-      blogs.name as "blogName", posts.created_at as "createdAt"
+      blogs.name as "blogName", posts.created_at as "createdAt" ${userId ? ', reactions.reaction_status as "reactionStatus"' : ''}
       FROM posts
       LEFT JOIN blogs ON blogs.id = posts.blog_id
+      ${userId ? `LEFT JOIN reactions ON reactions.user_id = '${userId}'` : ''}
       WHERE posts.id = $1
     `;
 
-    const result: PostViewDto[] = await this.dataSource.query(query, [id]);
+    const result: any[] = await this.dataSource.query(query, [id]);
 
     if (result.length === 0) {
       throw new NotFoundException([
@@ -140,20 +233,38 @@ export class PostsQueryRepository {
       ]);
     }
 
-    return PostViewDto.mapToView(result[0], null);
-    //
-    //   let userPostReactionStatus: ReactionModelStatus | null = null;
-    //   if (userId) {
-    //     const user = await this.UserModel.findById(userId);
-    //     if (user && user.userReactions?.length > 0) {
-    //       const userPostReaction = user.userReactions.find(
-    //         (userReact) => userReact.commentOrPostId === post.id,
-    //       );
-    //
-    //       userPostReactionStatus = userPostReaction?.status;
-    //     }
-    //   }
-    //
-    //   return PostViewDto.mapToView(post, userPostReactionStatus as any);
+    // COUNT LIKES AND DISLIKES FOR COMMENT
+    const likesDislikesQuery = `
+      SELECT
+        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Like}' THEN 1 END) as "likesCount",
+        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Dislike}' THEN 1 END) as "dislikesCount"
+      FROM reactions
+      WHERE reactions.entity_id = $1;
+    `;
+
+    const likesDislikesResult = await this.dataSource.query(
+      likesDislikesQuery,
+      [id],
+    );
+
+    // GET LAST 3 LIKES
+
+    const lastLikesQuery = `
+        SELECT u.id, u.login, r.created_at as "addedAt"
+        FROM reactions r
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.entity_id = $1
+        ORDER BY "addedAt" DESC
+        LIMIT 3;
+    `;
+
+    const lastLikesResult = await this.dataSource.query(lastLikesQuery, [id]);
+
+    return PostViewDto.mapToView(
+      result[0],
+      result[0].reactionStatus,
+      likesDislikesResult[0],
+      lastLikesResult,
+    );
   }
 }

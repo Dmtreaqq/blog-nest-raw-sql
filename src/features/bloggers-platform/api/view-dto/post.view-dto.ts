@@ -1,5 +1,5 @@
 import { Post } from '../../domain/post.entity';
-import { ReactionDbStatus, ReactionStatus } from '../enums/ReactionStatus';
+import { ReactionStatus } from '../enums/ReactionStatus';
 
 class LikesDetails {
   addedAt: Date;
@@ -25,7 +25,12 @@ export class PostViewDto {
 
   extendedLikesInfo: ExtendedLikesInfo;
 
-  static mapToView(post: Post, userStatus: ReactionStatus | null): PostViewDto {
+  static mapToView(
+    post: Post,
+    userStatus: ReactionStatus | null,
+    likesDislikesDto: { likesCount: number; dislikesCount: number },
+    newestLikes: any[],
+  ): PostViewDto {
     const dto = new PostViewDto();
 
     dto.id = post.id;
@@ -38,45 +43,12 @@ export class PostViewDto {
 
     // TODO: FIX WHEN LIKES APPEAR
     dto.extendedLikesInfo = {
-      likesCount: this.countLikes([]),
-      dislikesCount: this.countDislikes([]),
+      likesCount: Number(likesDislikesDto?.likesCount) ?? 0,
+      dislikesCount: Number(likesDislikesDto?.dislikesCount) ?? 0,
       myStatus: userStatus ?? ReactionStatus.None,
-      newestLikes: this.countThreeLastLikesWithDetails([]),
+      newestLikes,
     };
 
     return dto;
-  }
-
-  private static countLikes(reactions: any[]): number {
-    const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionDbStatus.Like,
-    );
-
-    return likes.length;
-  }
-
-  private static countDislikes(reactions: any[]): number {
-    const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionDbStatus.Dislike,
-    );
-
-    return likes.length;
-  }
-
-  private static countThreeLastLikesWithDetails(
-    reactions: any[],
-  ): LikesDetails[] {
-    const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionDbStatus.Like,
-    );
-
-    return likes
-      .slice(-3)
-      .reverse()
-      .map((like) => ({
-        login: like.login,
-        addedAt: like.createdAt,
-        userId: like.userId,
-      }));
   }
 }
