@@ -17,12 +17,14 @@ import { DeleteCommentUseCase } from './application/usecases/delete-comment.usec
 import { CreateCommentUseCase } from './application/usecases/create-comment.usecase';
 import { ReactionRepository } from './repositories/reaction.repository';
 import { SetLikeUseCase } from './application/usecases/set-like.usecase';
+import { SetDislikeUseCase } from './application/usecases/set-dislike.usecase';
 
 const useCases = [
   CreateCommentUseCase,
   DeleteCommentUseCase,
   UpdateCommentUseCase,
   SetLikeUseCase,
+  SetDislikeUseCase,
 ];
 
 @Module({

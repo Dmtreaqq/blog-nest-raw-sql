@@ -35,6 +35,7 @@ import { CreateUpdateReactionInput } from './input-dto/create-update-reaction.in
 import { SetLikeCommand } from '../application/usecases/set-like.usecase';
 import { ReactionEntityType } from './enums/ReactionEntityType';
 import { ReactionStatus } from './enums/ReactionStatus';
+import { SetDislikeCommand } from '../application/usecases/set-dislike.usecase';
 
 // import { PostsRepository } from '../repositories/posts.repository';
 
@@ -131,10 +132,14 @@ export class PostsController {
     }
 
     if (dto.likeStatus === ReactionStatus.Dislike) {
-      // await this.commandBus.execute(
-      //   new SetLikeCommand(userContext.id, params.id, ReactionEntityType.Post),
-      // );
-      // return;
+      await this.commandBus.execute(
+        new SetDislikeCommand(
+          userContext.id,
+          params.id,
+          ReactionEntityType.Post,
+        ),
+      );
+      return;
     }
 
     if (dto.likeStatus === ReactionStatus.None) {

@@ -10,7 +10,7 @@ import { ReactionRepository } from '../../repositories/reaction.repository';
 import { ReactionDbStatus } from '../../api/enums/ReactionStatus';
 import { CreateReactionDto } from '../../dto/create-reaction.dto';
 
-export class SetLikeCommand {
+export class SetDislikeCommand {
   constructor(
     public userId: string,
     public entityId: string,
@@ -18,8 +18,10 @@ export class SetLikeCommand {
   ) {}
 }
 
-@CommandHandler(SetLikeCommand)
-export class SetLikeUseCase implements ICommandHandler<SetLikeCommand, void> {
+@CommandHandler(SetDislikeCommand)
+export class SetDislikeUseCase
+  implements ICommandHandler<SetDislikeCommand, void>
+{
   constructor(
     private usersRepository: UsersRepository,
     private commentsRepository: CommentsRepository,
@@ -27,7 +29,7 @@ export class SetLikeUseCase implements ICommandHandler<SetLikeCommand, void> {
     private reactionRepository: ReactionRepository,
   ) {}
 
-  async execute(command: SetLikeCommand) {
+  async execute(command: SetDislikeCommand) {
     const { userId, entityId, entityType } = command;
 
     // CHECK IF USER VALID
@@ -64,15 +66,15 @@ export class SetLikeUseCase implements ICommandHandler<SetLikeCommand, void> {
         userId,
         entityId,
         entityType,
-        reactionStatus: ReactionDbStatus.Like,
+        reactionStatus: ReactionDbStatus.Dislike,
       };
 
       await this.reactionRepository.createReaction(reactionDtp);
       return;
     }
 
-    // DONT DO ANYTHING IF TRY TO SET LIKE TWICE
-    if (userReactionThisEntity.reactionStatus === ReactionDbStatus.Like) {
+    // DONT DO ANYTHING IF TRY TO SET DISLIKE TWICE
+    if (userReactionThisEntity.reactionStatus === ReactionDbStatus.Dislike) {
       return;
     }
 
@@ -80,7 +82,7 @@ export class SetLikeUseCase implements ICommandHandler<SetLikeCommand, void> {
     if (userReactionThisEntity) {
       await this.reactionRepository.updateReaction(
         userReactionThisEntity.id,
-        ReactionDbStatus.Like,
+        ReactionDbStatus.Dislike,
       );
     }
   }

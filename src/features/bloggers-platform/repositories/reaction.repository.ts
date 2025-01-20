@@ -12,9 +12,21 @@ export class ReactionRepository {
   async findReactionByUserIdAndEntityId(
     userId: string,
     entityId: string,
-    entityType: ReactionEntityType,
   ): Promise<Reaction | null> {
-    return null;
+    const result = await this.dataSource.query(
+      `
+        SELECT *
+        FROM reactions
+        WHERE reactions.user_id = $1 AND reactions.entity_id = $2
+    `,
+      [userId, entityId],
+    );
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
   }
 
   async createReaction(reactionDto: CreateReactionDto) {
@@ -32,5 +44,15 @@ export class ReactionRepository {
       entityType,
       reactionStatus,
     ]);
+  }
+
+  async updateReaction(reactionId: string, reactionStatus: ReactionDbStatus) {
+    const query = `
+      UPDATE reactions
+      SET reaction_status = $2
+      WHERE reactions.id = $1;
+    `;
+
+    await this.dataSource.query(query, [reactionId, reactionStatus]);
   }
 }
