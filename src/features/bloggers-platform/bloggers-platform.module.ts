@@ -18,6 +18,7 @@ import { CreateCommentUseCase } from './application/usecases/create-comment.usec
 import { ReactionRepository } from './repositories/reaction.repository';
 import { SetLikeUseCase } from './application/usecases/set-like.usecase';
 import { SetDislikeUseCase } from './application/usecases/set-dislike.usecase';
+import { SetNoneUseCase } from './application/usecases/set-none.usecase';
 
 const useCases = [
   CreateCommentUseCase,
@@ -25,6 +26,7 @@ const useCases = [
   UpdateCommentUseCase,
   SetLikeUseCase,
   SetDislikeUseCase,
+  SetNoneUseCase,
 ];
 
 @Module({

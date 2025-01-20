@@ -55,4 +55,13 @@ export class ReactionRepository {
 
     await this.dataSource.query(query, [reactionId, reactionStatus]);
   }
+
+  async deleteReaction(reactionId: string) {
+    const query = `
+      DELETE FROM reactions
+      WHERE reactions.id = $1;
+    `;
+
+    await this.dataSource.query(query, [reactionId]);
+  }
 }
