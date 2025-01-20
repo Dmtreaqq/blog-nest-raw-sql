@@ -192,14 +192,13 @@ ORDER BY
     `;
 
     const lastLikesResult = await this.dataSource.query(lastLikesQuery);
-    // console.log(lastLikesResult)
 
-    const items = posts.map((post: any, index) => {
+    const items = posts.map((post: any) => {
       return PostViewDto.mapToView(
         post,
         post.reactionStatus,
         likesDislikesResult.find((obj) => obj.postId === post.id),
-        lastLikesResult,
+        lastLikesResult.filter((obj) => obj.postId === post.id),
       );
     });
 

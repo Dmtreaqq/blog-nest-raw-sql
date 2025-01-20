@@ -46,7 +46,13 @@ export class PostViewDto {
       likesCount: Number(likesDislikesDto?.likesCount) ?? 0,
       dislikesCount: Number(likesDislikesDto?.dislikesCount) ?? 0,
       myStatus: userStatus ?? ReactionStatus.None,
-      newestLikes,
+      newestLikes: newestLikes.map((item) => {
+        return {
+          addedAt: item.addedAt,
+          userId: item.userId,
+          login: item.login,
+        };
+      }),
     };
 
     return dto;
