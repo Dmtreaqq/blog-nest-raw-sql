@@ -20,6 +20,7 @@ import { CommentViewDto } from '../../../../src/features/bloggers-platform/api/v
 import { CommentsTestManager } from '../../../helpers/comments-test-manager';
 import { ObjectId } from 'mongodb';
 import { initSettings } from '../../../helpers/init-settings';
+import { randomUUID } from 'node:crypto';
 
 const commentEntity: CommentViewDto = {
   id: '',
@@ -91,7 +92,7 @@ describe('Comments Negative (e2e)', () => {
       errorsMessages: [
         {
           field: 'id',
-          message: 'id must be a mongodb id',
+          message: 'id must be a UUID',
         },
       ],
     });
@@ -115,7 +116,7 @@ describe('Comments Negative (e2e)', () => {
       errorsMessages: [
         {
           field: 'id',
-          message: 'id must be a mongodb id',
+          message: 'id must be a UUID',
         },
       ],
     });
@@ -132,7 +133,7 @@ describe('Comments Negative (e2e)', () => {
       errorsMessages: [
         {
           field: 'id',
-          message: 'id must be a mongodb id',
+          message: 'id must be a UUID',
         },
       ],
     });
@@ -155,7 +156,7 @@ describe('Comments Negative (e2e)', () => {
       errorsMessages: [
         {
           field: 'id',
-          message: 'id must be a mongodb id',
+          message: 'id must be a UUID',
         },
       ],
     });
@@ -177,7 +178,7 @@ describe('Comments Negative (e2e)', () => {
       errorsMessages: [
         {
           field: 'id',
-          message: 'id must be a mongodb id',
+          message: 'id must be a UUID',
         },
       ],
     });
@@ -189,7 +190,7 @@ describe('Comments Negative (e2e)', () => {
       user.login,
       createUserInput.password,
     );
-    const notExistingPostId = new ObjectId();
+    const notExistingPostId = randomUUID();
 
     await request(app.getHttpServer())
       .post(
@@ -208,7 +209,7 @@ describe('Comments Negative (e2e)', () => {
       user.login,
       createUserInput.password,
     );
-    const notExistingCommentId = new ObjectId();
+    const notExistingCommentId = randomUUID();
 
     await request(app.getHttpServer())
       .delete(API_PREFIX + API_PATH.COMMENTS + `/${notExistingCommentId}`)
@@ -222,7 +223,7 @@ describe('Comments Negative (e2e)', () => {
       user.login,
       createUserInput.password,
     );
-    const notExistingCommentId = new ObjectId();
+    const notExistingCommentId = randomUUID();
 
     await request(app.getHttpServer())
       .put(API_PREFIX + API_PATH.COMMENTS + `/${notExistingCommentId}`)
@@ -233,7 +234,7 @@ describe('Comments Negative (e2e)', () => {
 
   it('should return 403 while PUT not own comment', async () => {
     const blog = await blogsTestManager.createBlog(createBlogInput);
-    const post = await postsTestManager.createPost({
+    const post = await postsTestManager.createPost(blog.id, {
       ...createPostInput,
       blogId: blog.id,
     });
@@ -266,7 +267,7 @@ describe('Comments Negative (e2e)', () => {
 
   it('should return 403 while DELETE not own comment', async () => {
     const blog = await blogsTestManager.createBlog(createBlogInput);
-    const post = await postsTestManager.createPost({
+    const post = await postsTestManager.createPost(blog.id, {
       ...createPostInput,
       blogId: blog.id,
     });
@@ -296,27 +297,39 @@ describe('Comments Negative (e2e)', () => {
       .expect(HttpStatus.FORBIDDEN);
   });
 
-  // it('should PUT None comment successfully', async () => {
-  //   const blog = await blogsTestManager.createBlog();
-  //   const post = await postsTestManager.createPost(blog.id);
-  //   const token = await authTestManager.getTokenOfLoggedInUser();
-  //   const comment = await commentsTestManager.createComment(post.id, token);
-  //
-  //   const response = await request(app.getHttpServer())
-  //     .put(API_PREFIX + API_PATH.COMMENTS + `/${comment.id}/like-status`)
-  //     .set('authorization', `Bearer ${token}`)
-  //     .send({
-  //       likeStatus: 'ERROR',
-  //     })
-  //     .expect(HttpStatus.BAD_REQUEST);
-  //
-  //   expect(response.body).toEqual({
-  //     errorsMessages: [
-  //       {
-  //         field: 'likeStatus',
-  //         message: 'Needs to be None, Like, Dislike',
-  //       },
-  //     ],
-  //   });
-  // });
+  it('should PUT None comment successfully', async () => {
+    const blog = await blogsTestManager.createBlog(createBlogInput);
+    const post = await postsTestManager.createPost(blog.id, {
+      ...createPostInput,
+      blogId: blog.id,
+    });
+    const user = await usersTestManager.createUser(createUserInput);
+    const { accessToken: token } = await usersTestManager.login(
+      user.login,
+      createUserInput.password,
+    );
+    const comment = await commentsTestManager.createComment(
+      { content: 'Some content for comment' },
+      token,
+      post.id,
+    );
+
+    const response = await request(app.getHttpServer())
+      .put(API_PREFIX + API_PATH.COMMENTS + `/${comment.id}/like-status`)
+      .set('authorization', `Bearer ${token}`)
+      .send({
+        likeStatus: 'ERROR',
+      })
+      .expect(HttpStatus.BAD_REQUEST);
+
+    expect(response.body).toEqual({
+      errorsMessages: [
+        {
+          field: 'likeStatus',
+          message:
+            'likeStatus must be one of the following values: None, Like, Dislike',
+        },
+      ],
+    });
+  });
 });
