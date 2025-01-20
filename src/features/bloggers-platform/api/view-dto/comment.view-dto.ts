@@ -1,6 +1,5 @@
 import { Comment } from '../../domain/comment.entity';
 import { ReactionDbStatus, ReactionStatus } from '../enums/ReactionStatus';
-// import { ReactionDocument } from '../../domain/reaction.entity';
 
 class CommentatorInfo {
   userId: string;
@@ -23,6 +22,7 @@ export class CommentViewDto {
   static mapToView(
     comment: any,
     userStatus: ReactionStatus | null,
+    likesDislikesDto: { likesCount: number; dislikesCount: number },
   ): CommentViewDto {
     const dto = new CommentViewDto();
 
@@ -33,29 +33,13 @@ export class CommentViewDto {
       userId: comment.commentatorId,
       userLogin: comment.login!,
     };
-    // TODO: FIX WHEN LIKES APPEAR
+
     dto.likesInfo = {
-      likesCount: this.countLikes([]),
-      dislikesCount: this.countDislikes([]),
+      likesCount: likesDislikesDto?.likesCount ?? 0,
+      dislikesCount: likesDislikesDto?.dislikesCount ?? 0,
       myStatus: userStatus ?? ReactionStatus.None,
     };
 
     return dto;
-  }
-
-  private static countLikes(reactions: any[]): number {
-    const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionDbStatus.Like,
-    );
-
-    return likes.length;
-  }
-
-  private static countDislikes(reactions: any[]): number {
-    const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionDbStatus.Dislike,
-    );
-
-    return likes.length;
   }
 }

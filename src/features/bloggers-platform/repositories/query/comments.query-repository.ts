@@ -32,9 +32,10 @@ export class CommentsQueryRepository {
 
     const sqlQuery = `
       SELECT comments.id, comments.created_at as "createdAt", comments.commentator_id as "commentatorId",
-      users.login, comments.content
+      users.login, comments.content ${userId ? ', reactions.reaction_status as "reactionStatus"' : ''}
       FROM comments
       LEFT JOIN users ON comments.commentator_id = users.id
+      ${userId ? `LEFT JOIN reactions ON reactions.user_id = '${userId}' AND reactions.entity_id = comments.id` : ''}
       WHERE comments.post_id = $1
       ORDER BY "${sortBy}" ${sortDirection}
       LIMIT ${pageSize}
@@ -42,6 +43,17 @@ export class CommentsQueryRepository {
       `;
 
     const comments: Comment[] = await this.dataSource.query(sqlQuery, [postId]);
+    const commentIds = comments.map((comm) => "'" + comm.id + "'").join(',');
+
+    const likesDislikesQuery = `
+      SELECT
+        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Like}' THEN 1 END) as "likesCount",
+        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Dislike}' THEN 1 END) as "dislikesCount"
+      FROM reactions
+      WHERE reactions.entity_id IN (${commentIds});
+    `;
+
+    const likesDislikesResult = await this.dataSource.query(likesDislikesQuery);
 
     const totalCount = await this.dataSource.query(
       `
@@ -55,27 +67,12 @@ export class CommentsQueryRepository {
       [postId],
     );
 
-    // let user: UserDocument | null = null;
-    // let userCommentReactionStatus: ReactionStatus = ReactionStatus.None;
-    //
-    // if (userId) {
-    //   user = await this.UserModel.findById(userId);
-    // }
-    // const findUserReactionForComment = (commId: string): ReactionStatus => {
-    //   if (!userId) return userCommentReactionStatus;
-    //
-    //   if (user && user.userReactions?.length > 0) {
-    //     userCommentReactionStatus = user.userReactions.find(
-    //       (userReact) => userReact.commentOrPostId === commId,
-    //     )?.status as any;
-    //   } else {
-    //     return userCommentReactionStatus;
-    //   }
-    //
-    //   return userCommentReactionStatus;
-    // };
-    const items = comments.map((comm) =>
-      CommentViewDto.mapToView(comm, ReactionStatus.None),
+    const items = comments.map((comm: any, index) =>
+      CommentViewDto.mapToView(
+        comm,
+        comm.reactionStatus,
+        likesDislikesResult[0][index],
+      ),
     );
 
     return BasePaginationViewDto.mapToView({
@@ -89,9 +86,10 @@ export class CommentsQueryRepository {
   async getByIdOrThrow(id: string, userId?: string): Promise<CommentViewDto> {
     const query = `
       SELECT comments.id, comments.created_at as "createdAt", comments.commentator_id as "commentatorId",
-      users.login, comments.content
+      users.login, comments.content ${userId ? ', reactions.reaction_status as "reactionStatus"' : ''}
       FROM comments
       LEFT JOIN users ON comments.commentator_id = users.id
+      ${userId ? `LEFT JOIN reactions ON reactions.user_id = '${userId}'` : ''}
       WHERE comments.id = $1;
     `;
 
@@ -106,18 +104,24 @@ export class CommentsQueryRepository {
       ]);
     }
 
-    // let userCommentReactionStatus: ReactionModelStatus | null = null;
-    // if (userId) {
-    //   const user = await this.UserModel.findById(userId);
-    //   if (user && user.userReactions?.length > 0) {
-    //     const userCommentReaction = user.userReactions.find(
-    //       (userReact) => userReact.commentOrPostId === comment.id,
-    //     );
-    //
-    //     userCommentReactionStatus = userCommentReaction?.status;
-    //   }
-    // }
+    // COUNT LIKES AND DISLIKES FOR COMMENT
+    const likesDislikesQuery = `
+      SELECT
+        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Like}' THEN 1 END) as "likesCount",
+        COUNT (CASE WHEN reaction_status = '${ReactionStatus.Dislike}' THEN 1 END) as "dislikesCount"
+      FROM reactions
+      WHERE reactions.entity_id = $1;
+    `;
 
-    return CommentViewDto.mapToView(result[0], ReactionStatus.None);
+    const likesDislikesResult = await this.dataSource.query(
+      likesDislikesQuery,
+      [id],
+    );
+
+    return CommentViewDto.mapToView(
+      result[0],
+      result[0].reactionStatus,
+      likesDislikesResult[0],
+    );
   }
 }
