@@ -43,6 +43,16 @@ export class CommentsQueryRepository {
       `;
 
     const comments: Comment[] = await this.dataSource.query(sqlQuery, [postId]);
+
+    if (comments.length === 0) {
+      return BasePaginationViewDto.mapToView({
+        page: query.pageNumber,
+        pageSize: query.pageSize,
+        totalCount: 0,
+        items: [],
+      });
+    }
+
     const commentIds = comments.map((comm) => "'" + comm.id + "'").join(',');
 
     const likesDislikesQuery = `
@@ -52,7 +62,7 @@ export class CommentsQueryRepository {
         FROM comments c
         LEFT JOIN reactions r ON r.entity_id = c.id
         WHERE c.id IN (${commentIds})
-        GROUP BY "commentId", r.reaction_status;
+        GROUP BY "commentId";
     `;
 
     const likesDislikesResult = await this.dataSource.query(likesDislikesQuery);
@@ -69,7 +79,7 @@ export class CommentsQueryRepository {
       [postId],
     );
 
-    const items = comments.map((comm: any, index) =>
+    const items = comments.map((comm: any) =>
       CommentViewDto.mapToView(
         comm,
         comm.reactionStatus,

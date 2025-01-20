@@ -61,15 +61,6 @@ export class SetNoneUseCase implements ICommandHandler<SetNoneCommand, void> {
     // IF USER DON'T HAVE A REACTION, LET IT BE JUST RETURN
     if (!userReactionThisEntity) {
       return;
-      // const reactionDtp: CreateReactionDto = {
-      //   userId,
-      //   entityId,
-      //   entityType,
-      //   reactionStatus: ReactionDbStatus.Like,
-      // };
-      //
-      // await this.reactionRepository.createReaction(reactionDtp);
-      // return;
     }
 
     // IF USER HAVE REACTION DELETE IT

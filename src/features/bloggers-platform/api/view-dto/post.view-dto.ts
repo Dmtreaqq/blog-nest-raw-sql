@@ -49,7 +49,7 @@ export class PostViewDto {
       newestLikes: newestLikes.map((item) => {
         return {
           addedAt: item.addedAt,
-          userId: item.userId,
+          userId: item.userId || item.id,
           login: item.login,
         };
       }),
