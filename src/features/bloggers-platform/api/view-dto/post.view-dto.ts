@@ -1,5 +1,5 @@
 import { Post } from '../../domain/post.entity';
-import { ReactionModelStatus, ReactionStatus } from '../enums/ReactionStatus';
+import { ReactionDbStatus, ReactionStatus } from '../enums/ReactionStatus';
 
 class LikesDetails {
   addedAt: Date;
@@ -49,7 +49,7 @@ export class PostViewDto {
 
   private static countLikes(reactions: any[]): number {
     const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionModelStatus.Like,
+      (reaction) => reaction.reactionStatus === ReactionDbStatus.Like,
     );
 
     return likes.length;
@@ -57,7 +57,7 @@ export class PostViewDto {
 
   private static countDislikes(reactions: any[]): number {
     const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionModelStatus.Dislike,
+      (reaction) => reaction.reactionStatus === ReactionDbStatus.Dislike,
     );
 
     return likes.length;
@@ -67,7 +67,7 @@ export class PostViewDto {
     reactions: any[],
   ): LikesDetails[] {
     const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionModelStatus.Like,
+      (reaction) => reaction.reactionStatus === ReactionDbStatus.Like,
     );
 
     return likes

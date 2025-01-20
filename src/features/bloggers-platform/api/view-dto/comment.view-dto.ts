@@ -1,5 +1,5 @@
 import { Comment } from '../../domain/comment.entity';
-import { ReactionModelStatus, ReactionStatus } from '../enums/ReactionStatus';
+import { ReactionDbStatus, ReactionStatus } from '../enums/ReactionStatus';
 // import { ReactionDocument } from '../../domain/reaction.entity';
 
 class CommentatorInfo {
@@ -45,7 +45,7 @@ export class CommentViewDto {
 
   private static countLikes(reactions: any[]): number {
     const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionModelStatus.Like,
+      (reaction) => reaction.reactionStatus === ReactionDbStatus.Like,
     );
 
     return likes.length;
@@ -53,7 +53,7 @@ export class CommentViewDto {
 
   private static countDislikes(reactions: any[]): number {
     const likes = reactions.filter(
-      (reaction) => reaction.reactionStatus === ReactionModelStatus.Dislike,
+      (reaction) => reaction.reactionStatus === ReactionDbStatus.Dislike,
     );
 
     return likes.length;

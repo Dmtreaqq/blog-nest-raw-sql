@@ -30,10 +30,22 @@ export class CommentsRepository {
     return comment[0].id;
   }
 
-  // async getById(id: string) {
-  //   // return this.CommentModel.findById(id);
-  //   return {} as any;
-  // }
+  async getById(id: string) {
+    const result = await this.dataSource.query(
+      `
+    SELECT comments.id, comments.commentator_id as "commentatorId"
+    FROM comments
+    WHERE comments.id = $1
+    `,
+      [id],
+    );
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
+  }
 
   async deleteComment(id: string) {
     await this.dataSource.query(

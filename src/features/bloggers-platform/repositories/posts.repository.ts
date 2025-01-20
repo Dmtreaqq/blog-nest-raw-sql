@@ -35,8 +35,20 @@ export class PostsRepository {
   }
 
   async getById(id: string): Promise<Post | null> {
-    // return this.PostModel.findById(id);
-    return {} as any;
+    const result: Post[] = await this.dataSource.query(
+      `
+    SELECT id
+    FROM posts
+    WHERE posts.id = $1
+    `,
+      [id],
+    );
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return result[0];
   }
 
   async getByIdOrThrow(id: string): Promise<Post> {

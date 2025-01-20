@@ -15,11 +15,14 @@ import { CommentsQueryRepository } from './repositories/query/comments.query-rep
 import { UpdateCommentUseCase } from './application/usecases/update-comment.usecase';
 import { DeleteCommentUseCase } from './application/usecases/delete-comment.usecase';
 import { CreateCommentUseCase } from './application/usecases/create-comment.usecase';
+import { ReactionRepository } from './repositories/reaction.repository';
+import { SetLikeUseCase } from './application/usecases/set-like.usecase';
 
 const useCases = [
   CreateCommentUseCase,
   DeleteCommentUseCase,
   UpdateCommentUseCase,
+  SetLikeUseCase,
 ];
 
 @Module({
@@ -41,6 +44,7 @@ const useCases = [
     PostsQueryRepository,
     CommentsRepository,
     CommentsQueryRepository,
+    ReactionRepository,
     ...useCases,
   ],
   exports: [],

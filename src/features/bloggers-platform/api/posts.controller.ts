@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -17,7 +16,6 @@ import { PostsService } from '../application/posts.service';
 import { CreatePostInputDto } from './input-dto/create-post-input.dto';
 import { PostQueryGetParams } from './input-dto/get-posts-query.dto';
 import { BasePaginationViewDto } from '../../../common/dto/base-pagination.view-dto';
-import { UpdatePostInputDto } from './input-dto/update-post-input.dto';
 // import { CommentsQueryRepository } from '../repositories/query/comments.query-repository';
 // import { CommentsQueryGetParams } from './input-dto/get-comments-query.dto';
 import { IdInputDto } from '../../../common/dto/id.input-dto';
@@ -33,6 +31,11 @@ import { CreateCommentCommand } from '../application/usecases/create-comment.use
 import { CommandBus } from '@nestjs/cqrs';
 import { CommentsQueryRepository } from '../repositories/query/comments.query-repository';
 import { CommentsQueryGetParams } from './input-dto/get-comments-query.dto';
+import { CreateUpdateReactionInput } from './input-dto/create-update-reaction.input.dto';
+import { SetLikeCommand } from '../application/usecases/set-like.usecase';
+import { ReactionEntityType } from './enums/ReactionEntityType';
+import { ReactionStatus } from './enums/ReactionStatus';
+
 // import { PostsRepository } from '../repositories/posts.repository';
 
 @Controller('sa/posts')
@@ -112,21 +115,33 @@ export class PostsController {
     return this.commentsQueryRepository.getByIdOrThrow(commentId);
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @Put(':id/like-status')
-  // async setLikeStatus(
-  //   @Param() params: IdInputDto,
-  //   @GetUser() userContext: UserContext,
-  //   @Body() dto: CreateUpdateReactionInput,
-  // ) {
-  //   await this.commandBus.execute(
-  //     new UpdateReactionCommand({
-  //       userId: userContext.id,
-  //       commentOrPostId: params.id,
-  //       reactionStatus: dto.likeStatus,
-  //       reactionRelationType: ReactionRelationType.Post,
-  //     }),
-  //   );
-  // }
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id/like-status')
+  async setLikeStatus(
+    @Param() params: IdInputDto,
+    @GetUser() userContext: UserContext,
+    @Body() dto: CreateUpdateReactionInput,
+  ) {
+    if (dto.likeStatus === ReactionStatus.Like) {
+      await this.commandBus.execute(
+        new SetLikeCommand(userContext.id, params.id, ReactionEntityType.Post),
+      );
+      return;
+    }
+
+    if (dto.likeStatus === ReactionStatus.Dislike) {
+      // await this.commandBus.execute(
+      //   new SetLikeCommand(userContext.id, params.id, ReactionEntityType.Post),
+      // );
+      // return;
+    }
+
+    if (dto.likeStatus === ReactionStatus.None) {
+      // await this.commandBus.execute(
+      //   new SetLikeCommand(userContext.id, params.id, ReactionEntityType.Post),
+      // );
+      // return;
+    }
+  }
 }

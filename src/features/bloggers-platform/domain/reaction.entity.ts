@@ -1,11 +1,11 @@
-import { ReactionModelStatus } from '../api/enums/ReactionStatus';
+import { ReactionDbStatus } from '../api/enums/ReactionStatus';
 import { ReactionEntityType } from '../api/enums/ReactionEntityType';
 
 export class Reaction {
   id: string;
   userId: string;
   entityId: string;
-  reactionStatus: ReactionModelStatus;
+  reactionStatus: ReactionDbStatus;
   entityType: ReactionEntityType;
   createdAt: Date;
 }

@@ -10,7 +10,7 @@ export enum ReactionStatus {
 /**
  * Enum for Mongoose Model
  * */
-export enum ReactionModelStatus {
+export enum ReactionDbStatus {
   Like = 'Like',
   Dislike = 'Dislike',
 }

@@ -4,7 +4,7 @@ import { PostViewDto } from '../../api/view-dto/post.view-dto';
 import { PostQueryGetParams } from '../../api/input-dto/get-posts-query.dto';
 import { BasePaginationViewDto } from '../../../../common/dto/base-pagination.view-dto';
 import {
-  ReactionModelStatus,
+  ReactionDbStatus,
   ReactionStatus,
 } from '../../api/enums/ReactionStatus';
 import { InjectDataSource } from '@nestjs/typeorm';
