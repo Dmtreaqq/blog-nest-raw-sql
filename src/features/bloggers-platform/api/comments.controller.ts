@@ -20,6 +20,12 @@ import { GetUser } from '../../../common/decorators/get-user.decorator';
 import { UserContext } from '../../../common/dto/user-context.dto';
 import { UpdateCommentInputDto } from './input-dto/update-comment-input.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
+import { ReactionStatus } from './enums/ReactionStatus';
+import { SetLikeCommand } from '../application/usecases/set-like.usecase';
+import { ReactionEntityType } from './enums/ReactionEntityType';
+import { SetDislikeCommand } from '../application/usecases/set-dislike.usecase';
+import { SetNoneCommand } from '../application/usecases/set-none.usecase';
+import { CreateUpdateReactionInput } from './input-dto/create-update-reaction.input.dto';
 // import { CreateUpdateReactionInput } from './input-dto/create-update-reaction.input.dto';
 // import { UpdateReactionCommand } from '../application/usecases/update-reaction.usecase';
 // import { ReactionRelationType } from './enums/ReactionRelationType';
@@ -72,21 +78,45 @@ export class CommentsController {
     );
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @Put(':id/like-status')
-  // async setLikeStatus(
-  //   @Param() params: IdInputDto,
-  //   @GetUser() userContext: UserContext,
-  //   @Body() dto: CreateUpdateReactionInput,
-  // ) {
-  //   await this.commandBus.execute(
-  //     new UpdateReactionCommand({
-  //       userId: userContext.id,
-  //       commentOrPostId: params.id,
-  //       reactionStatus: dto.likeStatus,
-  //       reactionRelationType: ReactionRelationType.Comment,
-  //     }),
-  //   );
-  // }
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Put(':id/like-status')
+  async setLikeStatus(
+    @Param() params: IdInputDto,
+    @GetUser() userContext: UserContext,
+    @Body() dto: CreateUpdateReactionInput,
+  ) {
+    if (dto.likeStatus === ReactionStatus.Like) {
+      await this.commandBus.execute(
+        new SetLikeCommand(
+          userContext.id,
+          params.id,
+          ReactionEntityType.Comment,
+        ),
+      );
+      return;
+    }
+
+    if (dto.likeStatus === ReactionStatus.Dislike) {
+      await this.commandBus.execute(
+        new SetDislikeCommand(
+          userContext.id,
+          params.id,
+          ReactionEntityType.Comment,
+        ),
+      );
+      return;
+    }
+
+    if (dto.likeStatus === ReactionStatus.None) {
+      await this.commandBus.execute(
+        new SetNoneCommand(
+          userContext.id,
+          params.id,
+          ReactionEntityType.Comment,
+        ),
+      );
+      return;
+    }
+  }
 }
