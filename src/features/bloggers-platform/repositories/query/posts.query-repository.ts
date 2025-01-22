@@ -186,7 +186,7 @@ export class PostsQueryRepository {
     );
 
     const lastLikesQuery = `
-        WITH RankedReactions AS (
+    WITH RankedReactions AS (
     SELECT 
         r.entity_id,
         r.reaction_status,
@@ -248,7 +248,7 @@ export class PostsQueryRepository {
     if (result.length === 0) {
       throw new NotFoundException([
         {
-          message: 'User not found',
+          message: 'Post not found',
           field: 'id',
         },
       ]);
@@ -269,7 +269,6 @@ export class PostsQueryRepository {
     );
 
     // GET LAST 3 LIKES
-
     const lastLikesQuery = `
         SELECT u.id, u.login, r.created_at as "addedAt"
         FROM reactions r

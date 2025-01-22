@@ -1,16 +1,9 @@
 import { CreateCommentDto } from '../../dto/create-comment.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Promise, Types } from 'mongoose';
-import { CommentViewDto } from '../../api/view-dto/comment.view-dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Comment } from '../../domain/comment.entity';
+import { Promise } from 'mongoose';
 import { CommentsRepository } from '../../repositories/comments.repository';
 import { PostsRepository } from '../../repositories/posts.repository';
-import {
-  BadRequestException,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UsersRepository } from '../../../user-platform/repositories/users.repository';
 
 export class CreateCommentCommand {
@@ -24,7 +17,6 @@ export class CreateCommentUseCase
   constructor(
     private commentRepository: CommentsRepository,
     private postsRepository: PostsRepository,
-    // TODO: а как иначе??
     private usersRepository: UsersRepository,
   ) {}
 

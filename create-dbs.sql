@@ -63,6 +63,19 @@ CREATE TABLE IF NOT EXISTS comments (
 	FOREIGN KEY (commentator_id) REFERENCES users(id)
 )
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 CREATE TABLE IF NOT EXISTS reactions (
     id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id uuid NOT NULL,
@@ -73,6 +86,56 @@ CREATE TABLE IF NOT EXISTS reactions (
 	FOREIGN KEY (user_id) REFERENCES users(id),
 	UNIQUE (user_id, entity_id)
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+WITH RankedReactions AS (
+    SELECT
+        r.entity_id,
+        r.reaction_status,
+        r.created_at,
+        u.id,
+        u.login,
+        ROW_NUMBER() OVER (PARTITION BY entity_id ORDER BY r.created_at DESC) AS row_num
+    FROM
+        reactions r
+    LEFT JOIN users u ON r.user_id = u.id
+    WHERE
+        r.entity_id IN (${postIds}) AND r.reaction_status = 'Like'
+    )
+    SELECT
+        entity_id as "postId",
+        reaction_status as "reactionStatus",
+        created_at as "addedAt",
+        id as "userId",
+        login
+    FROM RankedReactions
+    WHERE
+        row_num <= 3
+    ORDER BY
+        entity_id, row_num;
+
+
+
+
+
+
+
+
+
+
 
 INSERT INTO users (id, email, login, password, is_confirmed, created_at)
 VALUES

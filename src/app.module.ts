@@ -3,7 +3,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { TestingModule } from './features/testing/testing.module';
 import { UserPlatformModule } from './features/user-platform/user-platform.module';
 import { CommonModule } from './common/common.module';
-import { CommonConfig, Environments } from './common/common.config';
+import { CommonConfig } from './common/common.config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { UserPlatformConfig } from './features/user-platform/config/user-platform.config';
 import { TypeOrmModule } from '@nestjs/typeorm';

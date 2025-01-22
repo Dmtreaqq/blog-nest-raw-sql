@@ -41,7 +41,6 @@ export class PostViewDto {
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt;
 
-    // TODO: FIX WHEN LIKES APPEAR
     dto.extendedLikesInfo = {
       likesCount: Number(likesDislikesDto?.likesCount) ?? 0,
       dislikesCount: Number(likesDislikesDto?.dislikesCount) ?? 0,
